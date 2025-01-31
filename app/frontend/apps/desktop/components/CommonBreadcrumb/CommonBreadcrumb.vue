@@ -68,6 +68,15 @@ const sizeClasses = computed(() => {
           }}
         </h1>
 
+        <CommonBadge
+          v-if="item.count !== undefined"
+          class="font-bold leading-snug ltr:ml-1.5 rtl:mr-1.5"
+          size="xs"
+          rounded
+        >
+          {{ item.count }}
+        </CommonBadge>
+
         <CommonIcon
           v-if="idx !== items.length - 1"
           :name="

@@ -14,7 +14,7 @@ module Gql::Mutations
     end
 
     def authorized?(article:)
-      Pundit.authorize(context.current_user, article, :update?)
+      pundit_authorized?(article, :update?)
     end
 
     def resolve(article:)

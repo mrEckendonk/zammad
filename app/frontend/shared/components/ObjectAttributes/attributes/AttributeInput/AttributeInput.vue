@@ -29,9 +29,12 @@ const title = computed(() => {
 
 const link = computed(() => {
   const { linktemplate, type } = props.attribute.dataOption || {}
+
   // link is processed in common component
   if (linktemplate) return null
+
   const value = String(primitiveValue.value)
+
   // app/assets/javascripts/app/index.coffee:135
   if (type === 'tel') return `tel:${phoneify(value)}`
   if (type === 'url') return value
@@ -41,7 +44,7 @@ const link = computed(() => {
 </script>
 
 <template>
-  <span v-if="!link">{{ title }}</span>
+  <template v-if="!link">{{ title }}</template>
   <CommonLink
     v-else
     :class="config?.classes?.link"

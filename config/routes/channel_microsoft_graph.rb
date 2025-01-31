@@ -17,6 +17,7 @@ Zammad::Application.routes.draw do
       collection do
         post 'group/:id', action: :group
         post 'inbound/:id', action: :inbound
+        post 'verify/:id', action: :verify
       end
     end
   end

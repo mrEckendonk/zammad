@@ -32,7 +32,7 @@ export const useConfigurationTwoFactor = () => {
   )
 
   const userCurrentTwoFactorSubscription = new SubscriptionHandler(
-    useUserCurrentTwoFactorUpdatesSubscription({ userId: session.userId }),
+    useUserCurrentTwoFactorUpdatesSubscription(),
   )
 
   const userCurrentTwoFactorResult = userCurrentTwoFactorSubscription.result()

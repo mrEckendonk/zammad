@@ -1,14 +1,5 @@
 query ticketOverviews($withTicketCount: Boolean!) {
   ticketOverviews(ignoreUserConditions: false) {
-    edges {
-      node {
-        ...overviewAttributes
-      }
-      cursor
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
+    ...overviewAttributes
   }
 }

@@ -28,9 +28,7 @@ module Taskbar::List
     end
 
     def trigger_list_update(user, app)
-      user_id = Gql::ZammadSchema.id_from_object(user)
-
-      Gql::Subscriptions::User::Current::TaskbarItem::ListUpdates.trigger(nil, arguments: { user_id:, app: })
+      Gql::Subscriptions::User::Current::TaskbarItem::ListUpdates.trigger(nil, arguments: { app: }, scope: user.id)
     end
   end
 end

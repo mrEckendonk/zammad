@@ -14,7 +14,7 @@ RSpec.describe Channel::Driver::Imap, integration: true, required_envs: %w[MAIL_
         ssl_verify: false,
       }
 
-      result = described_class.new.check(params)
+      result = described_class.new.check_configuration(params)
 
       expect(result[:result]).to eq 'ok'
     end
@@ -67,7 +67,7 @@ RSpec.describe Channel::Driver::Imap, integration: true, required_envs: %w[MAIL_
     end
   end
 
-  describe '.fetch', :aggregate_failures do
+  shared_context 'with channel and server configuration' do
     let(:folder) { "imap_spec-#{SecureRandom.uuid}" }
 
     let(:server_address) { ENV['MAIL_SERVER'] }
@@ -111,6 +111,10 @@ RSpec.describe Channel::Driver::Imap, integration: true, required_envs: %w[MAIL_
     end
 
     let(:imap) { Net::IMAP.new(server_address, port: 993, ssl: { verify_mode: OpenSSL::SSL::VERIFY_NONE }).tap { |imap| imap.login(server_login, server_password) } }
+  end
+
+  describe '#fetch', :aggregate_failures do
+    include_context 'with channel and server configuration'
 
     let(:purge_inbox) do
       imap.select('inbox')
@@ -128,118 +132,6 @@ RSpec.describe Channel::Driver::Imap, integration: true, required_envs: %w[MAIL_
 
     after do
       imap.delete(folder)
-    end
-
-    context 'when checking for imap status' do
-      let(:inbound_options) do
-        {
-          adapter: 'imap',
-          options: {
-            host:           ENV['MAIL_SERVER'],
-            user:           ENV['MAIL_ADDRESS'],
-            password:       server_password,
-            ssl:            true,
-            ssl_verify:     false,
-            folder:         folder,
-            keep_on_server: false,
-          },
-        }
-      end
-      let(:email_without_date) do
-        <<~EMAIL.gsub(%r{\n}, "\r\n")
-          Subject: hello1
-          From: shugo@example.com
-          To: shugo@example.com
-          Message-ID: <some1@example_without_date>
-
-          hello world
-        EMAIL
-      end
-      let(:email_now_date) do
-        <<~EMAIL.gsub(%r{\n}, "\r\n")
-          Subject: hello1
-          Date: #{Time.current.rfc2822}
-          From: shugo@example.com
-          To: shugo@example.com
-          Message-ID: <some1@example_now_date>
-
-          hello world
-        EMAIL
-      end
-      let(:email_old_date) do
-        <<~EMAIL.gsub(%r{\n}, "\r\n")
-          Subject: hello1
-          Date: Mon, 01 Jan 2000 03:00:00 +0000
-          From: shugo@example.com
-          To: shugo@example.com
-          Message-ID: <some1@example_old_date>
-
-          hello world
-        EMAIL
-      end
-
-      def check_state
-        described_class.new.check(channel.options.dig(:inbound, :options))
-      end
-
-      context 'with support for imap sort by date' do
-        it 'with dateless mail' do
-          imap.append(folder, email_without_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: false, archive_possible_is_fallback: false })
-        end
-
-        it 'with now dated mail' do
-          imap.append(folder, email_now_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: false, archive_possible_is_fallback: false })
-        end
-
-        it 'with old dated mail' do
-          imap.append(folder, email_old_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: true, archive_possible_is_fallback: false })
-        end
-      end
-
-      context 'without support for imap sort by date' do
-        before do
-          allow_any_instance_of(Net::IMAP).to receive(:sort).and_raise('this mail server does not support sorting by date')
-        end
-
-        it 'with dateless mail' do
-          imap.append(folder, email_without_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: true, archive_possible_is_fallback: true })
-        end
-
-        it 'with now dated mail' do
-          imap.append(folder, email_now_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: true, archive_possible_is_fallback: true })
-        end
-
-        it 'with old dated mail' do
-          imap.append(folder, email_old_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: true, archive_possible_is_fallback: false })
-        end
-      end
-
-      context 'without sort capability' do
-        before do
-          allow_any_instance_of(Net::IMAP).to receive(:capabilities).and_return(%w[ID IDLE IMAP4REV1 MOVE STARTTLS UIDPLUS UNSELECT])
-        end
-
-        it 'with dateless mail' do
-          imap.append(folder, email_without_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: true, archive_possible_is_fallback: true })
-        end
-
-        it 'with now dated mail' do
-          imap.append(folder, email_now_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: true, archive_possible_is_fallback: true })
-        end
-
-        it 'with old dated mail' do
-          imap.append(folder, email_old_date, [], Time.zone.now)
-          expect(check_state).to include({ archive_possible: true, archive_possible_is_fallback: false })
-        end
-      end
     end
 
     context 'when fetching regular emails' do
@@ -488,5 +380,187 @@ RSpec.describe Channel::Driver::Imap, integration: true, required_envs: %w[MAIL_
         expect(described_class.new.fetch_message_body_key({ 'host' => host })).to eq('RFC822')
       end
     end
+  end
+
+  describe '#check_configuration' do
+    include_context 'with channel and server configuration'
+
+    before do
+      imap.create(folder)
+      imap.select(folder)
+    end
+
+    after do
+      imap.delete(folder)
+    end
+
+    context 'when no messages exist' do
+      it 'finds no content messages' do
+        response = described_class
+          .new
+          .check_configuration(inbound_options[:options])
+
+        expect(response).to include(
+          result:           'ok',
+          content_messages: be_zero,
+        )
+      end
+    end
+
+    context 'when a verify message exist' do
+      it 'finds no content messages' do
+        imap.append folder, mock_a_message(verify: true)
+
+        response = described_class
+          .new
+          .check_configuration(inbound_options[:options])
+
+        expect(response).to include(
+          result:           'ok',
+          content_messages: be_zero,
+        )
+      end
+    end
+
+    context 'when some content messages exist' do
+      it 'finds content messages' do
+        3.times { imap.append folder, mock_a_message }
+
+        response = described_class
+          .new
+          .check_configuration(inbound_options[:options])
+
+        expect(response).to include(
+          result:           'ok',
+          content_messages: 3,
+        )
+      end
+    end
+
+    context 'when a verify and a content message exists' do
+      it 'finds content messages' do
+        imap.append folder, mock_a_message(verify: true)
+        imap.append folder, mock_a_message
+
+        response = described_class
+          .new
+          .check_configuration(inbound_options[:options])
+
+        expect(response).to include(
+          result:           'ok',
+          content_messages: 2,
+        )
+      end
+    end
+  end
+
+  describe '#verify_transport' do
+    include_context 'with channel and server configuration'
+
+    before do
+      imap.create(folder)
+      imap.select(folder)
+    end
+
+    after do
+      imap.delete(folder)
+    end
+
+    let(:verify_message) { Faker::Lorem.unique.sentence }
+
+    context 'when no messages exist' do
+      it 'returns falsy response' do
+        response = described_class
+          .new
+          .verify_transport(inbound_options[:options], verify_message)
+
+        expect(response).to include(result: 'verify not ok')
+      end
+    end
+
+    context 'when a content message exists' do
+      it 'returns falsy response' do
+        imap.append folder, mock_a_message
+
+        response = described_class
+          .new
+          .verify_transport(inbound_options[:options], verify_message)
+
+        expect(response).to include(result: 'verify not ok')
+      end
+    end
+
+    context 'when a verify message exists' do
+      before do
+        imap.append folder, mock_a_message(verify: verify_message)
+      end
+
+      it 'returns truthy response with the correct verify string' do
+        response = described_class
+          .new
+          .verify_transport(inbound_options[:options], verify_message)
+
+        expect(response).to include(result: 'ok')
+      end
+
+      it 'deletes the correct verify message' do
+        described_class
+          .new
+          .verify_transport(inbound_options[:options], verify_message)
+
+        message_ids = imap.sort(['DATE'], ['ALL'], 'US-ASCII')
+        message_meta = imap.fetch(message_ids.first, ['FLAGS'])[0].attr
+        expect(message_meta['FLAGS']).to include(:Deleted)
+      end
+
+      it 'returns falsy response with the wrong verify string' do
+        response = described_class
+          .new
+          .verify_transport(inbound_options[:options], 'another message')
+
+        expect(response).to include(result: 'verify not ok')
+      end
+
+      it 'does not delete not matching verify message' do
+        described_class
+          .new
+          .verify_transport(inbound_options[:options], 'another message')
+
+        message_ids = imap.sort(['DATE'], ['ALL'], 'US-ASCII')
+        message_meta = imap.fetch(message_ids.first, ['FLAGS'])[0].attr
+        expect(message_meta['FLAGS']).not_to include(:Deleted)
+      end
+    end
+
+    context 'when a content and a verify message exists' do
+      it 'returns truthy response' do
+        imap.append folder, mock_a_message(verify: verify_message)
+        imap.append folder, mock_a_message
+
+        response = described_class
+          .new
+          .verify_transport(inbound_options[:options], verify_message)
+
+        expect(response).to include(result: 'ok')
+      end
+    end
+  end
+
+  def mock_a_message(subject: nil, verify: false)
+    attrs = {
+      from:         Faker::Internet.unique.email,
+      to:           Faker::Internet.unique.email,
+      body:         Faker::Lorem.sentence,
+      subject:      verify.presence || subject.presence || Faker::Lorem.word,
+      content_type: 'text/html',
+    }
+
+    if verify.present?
+      attrs[:'X-Zammad-Ignore'] = 'true'
+      attrs[:'X-Zammad-Verify'] = 'true'
+      attrs[:'X-Zammad-Verify-Time'] = Time.current.to_s
+    end
+
+    Channel::EmailBuild.build(**attrs).to_s
   end
 end

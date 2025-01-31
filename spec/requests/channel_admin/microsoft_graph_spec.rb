@@ -76,21 +76,44 @@ RSpec.describe 'Microsoft Graph channel admin API endpoints', aggregate_failures
   end
 
   describe 'POST /api/v1/channels_admin/microsoft_graph/inbound/ID' do
-    let!(:channel) { create(:microsoft_graph_channel) }
-    let!(:group)   { create(:group) }
+    let(:channel) { create(:microsoft_graph_channel) }
+    let(:group)   { create(:group) }
 
     before do
       allow_any_instance_of(Channel).to receive(:refresh_xoauth2!).and_return(true)
       allow(EmailHelper::Probe).to receive(:inbound).and_return({ result: 'ok' })
     end
 
+    it 'does not update inbound options of the channel' do
+      expect do
+        post "/api/v1/channels/admin/microsoft_graph/inbound/#{channel.id}", params: { group_id: group.id, options: { folder_id: 'AAMkAD=', keep_on_server: 'true' } }
+      end.not_to change(channel, :updated_at)
+    end
+  end
+
+  describe 'POST /api/v1/channels_admin/microsoft_graph/verify/ID' do
+    let(:channel) { create(:microsoft_graph_channel) }
+    let(:group)   { create(:group) }
+
     it 'updates inbound options of the channel' do
-      post "/api/v1/channels/admin/microsoft_graph/inbound/#{channel.id}", params: { group_id: group.id, options: { folder_id: 'AAMkAD=', keep_on_server: 'true' } }
+      post "/api/v1/channels/admin/microsoft_graph/verify/#{channel.id}", params: { group_id: group.id, options: { folder_id: 'AAMkAD=', keep_on_server: 'true', archive: 'true', archive_before: '2025-01-01T00.00.000Z', archive_state_id: Ticket::State.find_by(name: 'closed').id } }
       expect(response).to have_http_status(:ok)
-      expect(channel.reload.group).to eq(group)
-      expect(channel.options['inbound']['options']).to include(
-        'folder_id'      => 'AAMkAD=',
-        'keep_on_server' => 'true',
+
+      channel.reload
+
+      expect(channel).to have_attributes(
+        group_id: group.id,
+        options:  include(
+          inbound: include(
+            options: include(
+              folder_id:        'AAMkAD=',
+              keep_on_server:   'true',
+              archive:          'true',
+              archive_before:   '2025-01-01T00.00.000Z',
+              archive_state_id: Ticket::State.find_by(name: 'closed').id.to_s,
+            )
+          )
+        )
       )
     end
   end

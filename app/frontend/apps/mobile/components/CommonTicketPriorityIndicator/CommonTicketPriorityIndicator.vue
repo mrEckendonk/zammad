@@ -18,9 +18,9 @@ const priorityClass = computed(() => {
     case 'high-priority':
       return 'bg-red-dark text-red-bright'
     case 'low-priority':
-      return 'bg-blue-highlight text-blue'
-    default:
       return 'bg-gray-highlight text-gray'
+    default:
+      return 'bg-blue-highlight text-blue'
   }
 })
 

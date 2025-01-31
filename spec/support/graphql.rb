@@ -207,7 +207,8 @@ module ZammadSpecSupportGraphql
                                    controller.request.remote_ip = context[:REMOTE_IP] || '127.0.0.1'
                                  end
 
-      context[:current_user] ||= @graphql_current_user
+      context[:current_user]    ||= @graphql_current_user
+      context[:current_user_id] ||= @graphql_current_user&.id
       if @graphql_current_user
         # TODO: we only fake a SID for now, create a real session?
         context[:sid] = SecureRandom.hex(16)

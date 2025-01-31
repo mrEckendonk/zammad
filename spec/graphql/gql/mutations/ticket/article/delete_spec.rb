@@ -39,13 +39,13 @@ RSpec.describe Gql::Mutations::Ticket::Article::Delete, :aggregate_failures, typ
     context 'when article cannot be destroyed anymore' do
       before { travel 1.hour }
 
-      it 'fails with Pundit error' do
+      it 'fails with error' do
         travel 1.hour
 
         expect { gql.execute(query, variables: variables) }
           .not_to change { Ticket::Article.exists? article.id }
 
-        expect(gql.result.error_type).to eq(Pundit::NotAuthorizedError)
+        expect(gql.result.error_type).to eq(Exceptions::Forbidden)
       end
     end
   end

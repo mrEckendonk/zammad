@@ -180,6 +180,29 @@ Setting.create_if_not_exists(
   frontend:    true
 )
 Setting.create_if_not_exists(
+  title:       __('Language Detection Service'),
+  name:        'language_detection_article',
+  area:        'Ticket::LanguageDetection',
+  description: __('Defines the backend service for ticket article language detection.'),
+  options:     {
+    form: [
+      {
+        display: '',
+        null:    true,
+        name:    'language_detection_article',
+        tag:     'select',
+        options: {
+          ''    => '-',
+          'cld' => 'Compact Language Detector (CLD)', # rubocop:disable Zammad/DetectTranslatableString
+        },
+      },
+    ],
+  },
+  state:       '',
+  preferences: {},
+  frontend:    false
+)
+Setting.create_if_not_exists(
   title:       __('Timezone'),
   name:        'timezone_default',
   area:        'System::Branding',
@@ -2000,6 +2023,90 @@ Setting.create_if_not_exists(
       'Setting::Validation::Saml::TLS',
       'Setting::Validation::Saml::Security',
     ],
+  },
+  frontend:    false
+)
+
+Setting.create_if_not_exists(
+  title:       __('Authentication via %s'),
+  name:        'auth_openid_connect',
+  area:        'Security::ThirdPartyAuthentication',
+  description: __('Enables user authentication via %s.'),
+  options:     {
+    form: [
+      {
+        display: '',
+        null:    true,
+        name:    'auth_openid_connect',
+        tag:     'boolean',
+        options: {
+          true  => 'yes',
+          false => 'no',
+        },
+      },
+    ],
+  },
+  preferences: {
+    controller:       'SettingsAreaSwitch',
+    sub:              ['auth_openid_connect_credentials'],
+    title_i18n:       [__('OpenID Connect')],
+    description_i18n: [__('OpenID Connect')],
+    permission:       ['admin.security'],
+  },
+  state:       false,
+  frontend:    true
+)
+Setting.create_if_not_exists(
+  title:       __('OpenID Connect Options'),
+  name:        'auth_openid_connect_credentials',
+  area:        'Security::ThirdPartyAuthentication::OpenIDConnect',
+  description: __('Enables user authentication via OpenID Connect.'),
+  options:     {
+    form: [
+      {
+        display:     __('Display name'),
+        null:        true,
+        name:        'display_name',
+        tag:         'input',
+        placeholder: __('OpenID Connect'),
+      },
+      {
+        display:     __('Identifier'),
+        null:        true,
+        name:        'identifier',
+        tag:         'input',
+        required:    true,
+        placeholder: '',
+      },
+      {
+        display:     __('Issuer'),
+        null:        true,
+        name:        'issuer',
+        tag:         'input',
+        placeholder: __('https://example.com'),
+        required:    true,
+      },
+      {
+        display:     __('UID Field'),
+        null:        true,
+        name:        'uid_field',
+        tag:         'input',
+        placeholder: 'sub',
+        help:        __('Field that uniquely identifies the user. If unset, "sub" is used.'),
+      },
+      {
+        display:     __('Scopes'),
+        null:        true,
+        name:        'scope',
+        tag:         'input',
+        placeholder: 'openid email profile',
+        help:        __('Scopes that are included, separated by a single space character. If unset, "openid email profile" is used.'),
+      },
+    ],
+  },
+  state:       {},
+  preferences: {
+    permission: ['admin.security'],
   },
   frontend:    false
 )

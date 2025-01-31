@@ -20,6 +20,7 @@ class BackgroundServices
     @threads    = []
     install_signal_trap
     AppVersion.start_maintenance_thread(process_name: 'background-worker')
+    Zammad::ProcessDebug.install_thread_status_handler
   end
 
   def run

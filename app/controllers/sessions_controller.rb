@@ -1,8 +1,12 @@
 # Copyright (C) 2012-2025 Zammad Foundation, https://zammad-foundation.org/
 
 class SessionsController < ApplicationController
+  include HandlesOidcAuthorization
+
   prepend_before_action :authenticate_and_authorize!, only: %i[switch_to_user list delete]
-  skip_before_action :verify_csrf_token, only: %i[show destroy create_omniauth failure_omniauth saml_destroy]
+  skip_before_action :verify_csrf_token, only: %i[show destroy
+                                                  create_omniauth failure_omniauth
+                                                  saml_destroy]
   skip_before_action :user_device_log, only: %i[create_sso create_omniauth]
 
   def show
@@ -64,13 +68,8 @@ class SessionsController < ApplicationController
       ENV['FAKE_SELENIUM_LOGIN_PENDING'] = nil # rubocop:disable Rails/EnvironmentVariableAccess
     end
 
-    if (session['saml_uid'] || session['saml_session_index']) && OmniAuth::Strategies::SamlDatabase.setup.fetch('idp_slo_service_url', nil)
-      begin
-        return saml_destroy
-      rescue => e
-        Rails.logger.error "SAML SLO failed: #{e.message}"
-      end
-    end
+    return saml_destroy if saml_session?
+    return oidc_destroy if oidc_session?
 
     reset_session
 
@@ -129,6 +128,11 @@ class SessionsController < ApplicationController
 
     # remember omnitauth login
     session[:authentication_type] = 'omniauth'
+
+    if auth['credentials']['id_token'].present?
+      session[:oidc_id_token] = auth['credentials']['id_token']
+      session[:oidc_sid] = auth['extra']['raw_info']['sid']
+    end
 
     # Set needed fingerprint parameter.
     if request.env['omniauth.params']['fingerprint'].present?
@@ -307,6 +311,7 @@ class SessionsController < ApplicationController
     #   but we still to display one of the options
     # https://github.com/zammad/zammad/issues/4263
     config['auth_saml_display_name'] = Setting.get('auth_saml_credentials')[:display_name]
+    config['auth_openid_connect_display_name'] = Setting.get('auth_openid_connect_credentials')[:display_name]
 
     # Include the flag for JSON column type support (currently only on PostgreSQL backend).
     config['column_type_json_supported'] =
@@ -331,6 +336,10 @@ class SessionsController < ApplicationController
     config
   end
 
+  def saml_session?
+    (session['saml_uid'] || session['saml_session_index']) && OmniAuth::Strategies::SamlDatabase.setup.fetch('idp_slo_service_url', nil)
+  end
+
   def saml_destroy
     options = OmniAuth::Strategies::SamlDatabase.setup
     settings = OneLogin::RubySaml::Settings.new(options)
@@ -347,6 +356,7 @@ class SessionsController < ApplicationController
     url = logout_request.create(settings)
 
     render json: { url: url }
+  rescue => e
+    Rails.logger.error "SAML SLO failed: #{e.message}"
   end
-
 end

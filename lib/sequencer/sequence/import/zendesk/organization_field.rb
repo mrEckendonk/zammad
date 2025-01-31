@@ -7,6 +7,7 @@ class Sequencer::Sequence::Import::Zendesk::OrganizationField < Sequencer::Seque
       'Common::ModelClass::Organization',
       'Import::Zendesk::ObjectAttribute::SanitizedType',
       'Import::Zendesk::ObjectAttribute::SanitizedName',
+      'Import::Zendesk::ObjectAttribute::Skip',
       'Import::Zendesk::ObjectAttribute::Add',
       'Import::Zendesk::ObjectAttribute::FieldMap',
     ]

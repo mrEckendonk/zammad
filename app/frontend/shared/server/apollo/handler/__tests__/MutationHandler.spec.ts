@@ -162,9 +162,12 @@ describe('MutationHandler', () => {
 
       const mutationHandlerObject = new MutationHandler(sampleMutation())
 
-      await expect(mutationHandlerObject.send()).rejects.toEqual(
-        userErrorObject,
-      )
+      await expect(mutationHandlerObject.send()).rejects.toMatchObject({
+        message: userErrorObject.message,
+        errors: userErrorObject.errors,
+        generalErrors: userErrorObject.generalErrors,
+        fieldErrors: userErrorObject.fieldErrors,
+      })
     })
   })
 

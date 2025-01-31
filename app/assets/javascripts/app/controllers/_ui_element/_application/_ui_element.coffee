@@ -158,7 +158,8 @@ class App.UiElement.ApplicationUiElement
       list = App[ attribute.relation ].search(sortBy: attribute.sortBy)
 
     # Turn on attribute translation if configured for the relation object.
-    attribute.translate = App[ attribute.relation ].configure_translate
+    if 'configure_translate' in App[attribute.relation]
+      attribute.translate = App[attribute.relation].configure_translate
 
     App.Log.debug 'ControllerForm', '_getRelationOptionList', attribute, list
 

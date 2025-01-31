@@ -37,6 +37,7 @@ class Ticket::Article < ApplicationModel
   belongs_to :sender,     class_name: 'Ticket::Article::Sender', optional: true
   belongs_to :origin_by,  class_name: 'User', optional: true
 
+  before_validation :detect_language, on: :create
   before_validation :check_mentions, on: :create
   before_validation :check_email_recipient_validity, if: :check_email_recipient_raises_error
   before_create :check_subject, :check_body, :check_message_id_md5
@@ -77,6 +78,12 @@ class Ticket::Article < ApplicationModel
     return true if message_id.blank?
 
     self.message_id_md5 = Digest::MD5.hexdigest(message_id.to_s)
+  end
+
+  def detect_language
+    return if Setting.get('language_detection_article').blank?
+
+    self.detected_language = LanguageDetectionHelper.detect(body.html2text)
   end
 
 =begin

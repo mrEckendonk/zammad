@@ -22,7 +22,6 @@ import {
   QueryHandler,
 } from '#shared/server/apollo/handler/index.ts'
 import { useApplicationStore } from '#shared/stores/application.ts'
-import { useSessionStore } from '#shared/stores/session.ts'
 import type { ObjectWithId } from '#shared/types/utils.ts'
 import log from '#shared/utils/log.ts'
 
@@ -49,7 +48,6 @@ export const useUserCurrentTaskbarTabsStore = defineStore(
   'userCurrentTaskbarTabs',
   () => {
     const application = useApplicationStore()
-    const session = useSessionStore()
     const router = useRouter()
 
     const taskbarTabContexts = ref<Record<string, TaskbarTabContext>>({})
@@ -62,7 +60,16 @@ export const useUserCurrentTaskbarTabsStore = defineStore(
       userTaskbarTabPluginByType[tabEntityType]
 
     const taskbarTabsQuery = new QueryHandler(
-      useUserCurrentTaskbarItemListQuery({ app: EnumTaskbarApp.Desktop }),
+      useUserCurrentTaskbarItemListQuery(
+        { app: EnumTaskbarApp.Desktop },
+        {
+          context: {
+            batch: {
+              active: false,
+            },
+          },
+        },
+      ),
     )
 
     const taskbarTabsRaw = taskbarTabsQuery.result()
@@ -247,7 +254,6 @@ export const useUserCurrentTaskbarTabsStore = defineStore(
       document: UserCurrentTaskbarItemUpdatesDocument,
       variables: {
         app: EnumTaskbarApp.Desktop,
-        userId: session.userId,
       },
       updateQuery(previous, { subscriptionData }) {
         const updates = subscriptionData.data.userCurrentTaskbarItemUpdates
@@ -300,7 +306,6 @@ export const useUserCurrentTaskbarTabsStore = defineStore(
     >({
       document: UserCurrentTaskbarItemListUpdatesDocument,
       variables: {
-        userId: session.userId,
         app: EnumTaskbarApp.Desktop,
       },
     })

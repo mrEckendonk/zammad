@@ -116,7 +116,7 @@ RSpec.describe Gql::Mutations::User::Update, type: :graphql do
 
         it 'raises an error' do
           gql.execute(query, variables: variables)
-          expect(gql.result.error_type).to eq(Pundit::NotAuthorizedError)
+          expect(gql.result.error_type).to eq(Exceptions::Forbidden)
         end
       end
 
@@ -125,7 +125,7 @@ RSpec.describe Gql::Mutations::User::Update, type: :graphql do
 
         it 'raises an error' do
           gql.execute(query, variables: variables)
-          expect(gql.result.error_type).to eq(Pundit::NotAuthorizedError)
+          expect(gql.result.error_type).to eq(Exceptions::Forbidden)
         end
       end
     end

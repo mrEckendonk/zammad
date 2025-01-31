@@ -28,7 +28,7 @@ describe('CommonTicketPriorityIndicator.vue', () => {
       },
     })
 
-    expect(view.getByText('1 low')).toHaveClass('common-badge-info')
+    expect(view.getByText('1 low')).toHaveClass('common-badge-tertiary')
   })
 
   it('renders high priority correctly', () => {
@@ -52,7 +52,7 @@ describe('CommonTicketPriorityIndicator.vue', () => {
       },
     })
 
-    expect(view.getByText('2 normal')).toHaveClass('common-badge-warning')
+    expect(view.getByText('2 normal')).toHaveClass('common-badge-info')
   })
 
   it('supports accessibility features', () => {

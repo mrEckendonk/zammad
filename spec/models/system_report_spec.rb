@@ -223,6 +223,7 @@ RSpec.describe SystemReport, current_user_id: 1, type: :model do
           'ticket_organization_reassignment',
           'checklist',
           'auto_shutdown',
+          'language_detection_article',
         ]
       end
 

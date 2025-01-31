@@ -1004,7 +1004,7 @@ describe('Ticket detail view', () => {
   it('should reset form after ticket updates', async () => {
     const ticket = createDummyTicket({
       state: {
-        id: convertToGraphQLId('Ticket::State', 2),
+        id: convertToGraphQLId('Ticket::State', 3),
         name: 'open',
         stateType: {
           id: convertToGraphQLId('TicketStateType', 2),
@@ -1106,6 +1106,12 @@ describe('Ticket detail view', () => {
       },
     })
 
-    expect(view.getByLabelText('Group')).toHaveTextContent('Users')
+    const attributesContainer = view.getByTestId('ticket-attributes')
+
+    await waitFor(() =>
+      expect(
+        within(attributesContainer).getByLabelText('Group'),
+      ).toHaveTextContent('Users'),
+    )
   })
 })

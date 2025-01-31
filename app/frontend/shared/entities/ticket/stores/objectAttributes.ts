@@ -95,8 +95,9 @@ export const staticObjectAttributes: EntityStaticObjectAttributes = {
       display: __('Created by'),
       dataOption: {
         relation: 'User',
+        belongs_to: 'createdBy',
       },
-      dataType: 'autocomplete',
+      dataType: 'autocompletion_ajax',
       isStatic: true,
       isInternal: true,
     },
@@ -112,8 +113,9 @@ export const staticObjectAttributes: EntityStaticObjectAttributes = {
       display: __('Updated by'),
       dataOption: {
         relation: 'User',
+        belongs_to: 'updatedBy',
       },
-      dataType: 'autocomplete',
+      dataType: 'autocompletion_ajax',
       isStatic: true,
       isInternal: true,
     },

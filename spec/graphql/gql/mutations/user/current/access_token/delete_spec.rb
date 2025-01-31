@@ -61,7 +61,7 @@ RSpec.describe Gql::Mutations::User::Current::AccessToken::Delete, type: :graphq
       let(:token) { create(:token) }
 
       it 'returns an error' do
-        expect(execute_graphql_query.error_message).to eq('not allowed to TokenPolicy#destroy? this Token')
+        expect(execute_graphql_query.error_message).to eq("Failed Gql::EntryPoints::Mutations's authorization check on field userCurrentAccessTokenDelete")
       end
 
       it 'does not delete token' do
@@ -75,7 +75,7 @@ RSpec.describe Gql::Mutations::User::Current::AccessToken::Delete, type: :graphq
       let(:token) { create(:token, persistent: false, user: user) }
 
       it 'returns an error' do
-        expect(execute_graphql_query.error_message).to eq('not allowed to TokenPolicy#destroy? this Token')
+        expect(execute_graphql_query.error_message).to eq("Failed Gql::EntryPoints::Mutations's authorization check on field userCurrentAccessTokenDelete")
       end
 
       it 'does not delete token' do

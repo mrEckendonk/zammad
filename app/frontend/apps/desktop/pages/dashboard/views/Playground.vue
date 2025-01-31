@@ -51,7 +51,10 @@ import CommonInputCopyToClipboard from '#desktop/components/CommonInputCopyToCli
 import CommonPopoverMenu from '#desktop/components/CommonPopoverMenu/CommonPopoverMenu.vue'
 import type { MenuItem } from '#desktop/components/CommonPopoverMenu/types.ts'
 import CommonProgressBar from '#desktop/components/CommonProgressBar/CommonProgressBar.vue'
-import CommonSimpleTable from '#desktop/components/CommonSimpleTable/CommonSimpleTable.vue'
+// import CommonAdvancedTable from '#desktop/components/CommonTable/CommonAdvancedTable.vue'
+import CommonSkeleton from '#desktop/components/CommonSkeleton/CommonSkeleton.vue'
+import CommonSimpleTable from '#desktop/components/CommonTable/CommonSimpleTable.vue'
+import CommonTableSkeleton from '#desktop/components/CommonTable/Skeleton/CommonTableSkeleton.vue'
 import CommonTabManager from '#desktop/components/CommonTabManager/CommonTabManager.vue'
 import { useTabManager } from '#desktop/components/CommonTabManager/useTabManager.ts'
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
@@ -1072,6 +1075,38 @@ const tableItems = reactive([
     email: 'floyd.miles@example.com',
     role: 'Member',
   },
+  {
+    id: 7,
+    name: 'Floyd Miles2',
+    title:
+      'Principal Designer for a very long way to go to see the end of the title. It is a very long title, indeed.',
+    email: 'floyd.miles@example.com',
+    role: 'Member',
+  },
+  {
+    id: 8,
+    name: 'Floyd Miles3',
+    title:
+      'Principal Designer for a very long way to go to see the end of the title. It is a very long title, indeed.',
+    email: 'floyd.miles@example.com',
+    role: 'Member',
+  },
+  {
+    id: 9,
+    name: 'Floyd Miles4',
+    title:
+      'Principal Designer for a very long way to go to see the end of the title. It is a very long title, indeed.',
+    email: 'floyd.miles@example.com',
+    role: 'Member',
+  },
+  {
+    id: 10,
+    name: 'Floyd Miles5',
+    title:
+      'Principal Designer for a very long way to go to see the end of the title. It is a very long title, indeed.',
+    email: 'floyd.miles@example.com',
+    role: 'Member',
+  },
 ])
 
 const tableActions: MenuItem[] = [
@@ -1094,7 +1129,7 @@ const tableActions: MenuItem[] = [
   },
 ]
 
-const changeRow = () => {
+const changeRowSimple = () => {
   tableItems[0].role = tableItems[0].role ? '' : 'Member'
 }
 
@@ -1169,6 +1204,15 @@ const inlineEditValue = ref('Edit me inline')
 <template>
   <LayoutContent :breadcrumb-items="[]">
     <div>
+      Generic skeleton
+      <CommonSkeleton class="h-8 w-full" />
+
+      Avatar example
+      <CommonSkeleton rounded class="h-8 w-8" />
+
+      Table Skeleton
+      <CommonTableSkeleton />
+
       <div class="w-1/2">
         <div class="flex space-x-3 py-2">
           <CommonTranslateRenderer
@@ -1391,16 +1435,29 @@ const inlineEditValue = ref('Edit me inline')
         </div>
       </div>
 
-      <h2 class="mb-2 mt-8">Table</h2>
+      <h2 class="mb-2 mt-8">Table (Simple)</h2>
       <div class="mb-6 flex flex-col gap-4">
-        <CommonButton variant="primary" @click="changeRow()"
+        <CommonButton variant="primary" @click="changeRowSimple()"
           >Change row</CommonButton
         >
         <CommonSimpleTable
+          caption="test"
           :headers="tableHeaders"
           :items="tableItems"
           :actions="tableActions"
         ></CommonSimpleTable>
+      </div>
+
+      <h2 class="mb-2 mt-8">Table (Advanced)</h2>
+      <div class="mb-6 flex flex-col gap-4">
+        <!-- <CommonAdvancedTable
+          :headers="tableHeaders"
+          :items="tableItems"
+          :actions="tableActions"
+          :max-items="5"
+          :total-items="10"
+          has-checkbox-column
+        ></CommonAdvancedTable> -->
       </div>
 
       <div class="w-1/2">

@@ -3,11 +3,6 @@
 class Channel::Driver::BaseEmailOutbound
   include Channel::EmailHelper
 
-  # We're using the same timeouts like in Net::SMTP gem
-  # but we would like to have the possibility to mock them for tests
-  DEFAULT_OPEN_TIMEOUT = 30.seconds
-  DEFAULT_READ_TIMEOUT = 60.seconds
-
   def deliver(_options, _attr, _notification = false) # rubocop:disable Style/OptionalBooleanParameter
     raise 'not implemented'
   end
@@ -25,7 +20,7 @@ class Channel::Driver::BaseEmailOutbound
     prepare_idn_outbound(attr)
   end
 
-  def deliver_mail(attr, notification, method, options)
+  def deliver_mail(attr, notification, method, options = {})
     mail = Channel::EmailBuild.build(attr, notification)
     mail.delivery_method method, options
     mail.deliver

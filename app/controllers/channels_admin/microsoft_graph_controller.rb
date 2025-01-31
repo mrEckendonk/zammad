@@ -42,20 +42,22 @@ class ChannelsAdmin::MicrosoftGraphController < ChannelsAdmin::BaseController
   end
 
   def inbound
-    channel = inbound_prepare_channel(params)
+    channel = Channel.find_by(id: params[:id], area:)
 
     channel.refresh_xoauth2!
+
+    inbound_prepare_channel(channel, params)
 
     result = EmailHelper::Probe.inbound(channel.options[:inbound])
     raise Exceptions::UnprocessableEntity, (result[:message_human] || result[:message]) if result[:result] == 'invalid'
 
-    channel.status_in    = 'ok'
-    channel.status_out   = 'ok'
-    channel.last_log_in  = nil
-    channel.last_log_out = nil
-    if params.key?(:active)
-      channel.active = params[:active]
-    end
+    render json: result
+  end
+
+  def verify
+    channel = Channel.find_by(id: params[:id], area:)
+
+    verify_prepare_channel(channel, params)
 
     channel.save!
 
@@ -94,15 +96,32 @@ class ChannelsAdmin::MicrosoftGraphController < ChannelsAdmin::BaseController
 
   private
 
-  def inbound_prepare_channel(params)
-    channel = Channel.find_by(id: params[:id], area:)
-
+  def inbound_prepare_channel(channel, params)
     channel.group_id = params[:group_id] if params[:group_id].present?
+    channel.active   = params[:active] if params.key?(:active)
+
+    channel.options[:inbound] ||= {}
+    channel.options[:inbound][:options] ||= {}
 
     %w[folder_id keep_on_server].each do |key|
+      next if params.dig(:options, key).nil?
+
+      channel.options[:inbound][:options][key] = params[:options][key]
+    end
+  end
+
+  def verify_prepare_channel(channel, params)
+    inbound_prepare_channel(channel, params)
+
+    %w[archive archive_before archive_state_id].each do |key|
+      next if params.dig(:options, key).nil?
+
       channel.options[:inbound][:options][key] = params[:options][key]
     end
 
-    channel
+    channel.status_in    = 'ok'
+    channel.status_out   = 'ok'
+    channel.last_log_in  = nil
+    channel.last_log_out = nil
   end
 end

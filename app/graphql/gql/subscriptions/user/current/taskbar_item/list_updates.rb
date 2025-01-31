@@ -5,17 +5,14 @@ module Gql::Subscriptions
 
     description 'Subscription for taskbar item list priority changes'
 
-    argument :user_id, GraphQL::Types::ID, loads: Gql::Types::UserType, description: 'Filter by user'
+    subscription_scope :current_user_id
+
     argument :app, Gql::Types::Enum::TaskbarAppType, description: 'Taskbar app to filter for.'
 
     field :taskbar_item_list, [Gql::Types::User::TaskbarItemType], description: 'List of taskbar items'
 
-    def authorized?(user:, app:)
-      user == context.current_user
-    end
-
-    def update(user:, app:)
-      { taskbar_item_list: TaskbarPolicy::Scope.new(user, ::Taskbar).resolve.app(app) }
+    def update(app:)
+      { taskbar_item_list: TaskbarPolicy::Scope.new(context.current_user, ::Taskbar).resolve.app(app) }
     end
 
   end

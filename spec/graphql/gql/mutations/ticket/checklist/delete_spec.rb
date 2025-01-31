@@ -60,7 +60,7 @@ RSpec.describe Gql::Mutations::Ticket::Checklist::Delete, current_user_id: 1, ty
     context 'with ticket read permission' do
       let(:agent) { create(:agent, groups: [group], group_names_access_map: { group.name => 'read' }) }
 
-      it_behaves_like 'raising an error', Pundit::NotAuthorizedError
+      it_behaves_like 'raising an error', Exceptions::Forbidden
     end
 
     context 'with ticket read+change permissions' do

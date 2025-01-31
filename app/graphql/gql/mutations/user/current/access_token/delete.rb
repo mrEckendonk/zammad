@@ -11,14 +11,14 @@ module Gql::Mutations
       ctx.current_user.permissions?('user_preferences.access_token')
     end
 
+    def authorized?(token:)
+      pundit_authorized?(token, :destroy?)
+    end
+
     def resolve(token:)
       token.destroy!
 
       { success: true }
-    end
-
-    def authorized?(token:)
-      Pundit.authorize(context.current_user, token, :destroy?)
     end
   end
 end

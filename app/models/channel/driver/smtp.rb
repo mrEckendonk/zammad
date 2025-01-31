@@ -1,26 +1,29 @@
 # Copyright (C) 2012-2025 Zammad Foundation, https://zammad-foundation.org/
 
 class Channel::Driver::Smtp < Channel::Driver::BaseEmailOutbound
-=begin
+  # We're using the same timeouts like in Net::SMTP gem
+  # but we would like to have the possibility to mock them for tests
+  DEFAULT_OPEN_TIMEOUT = 30.seconds
+  DEFAULT_READ_TIMEOUT = 60.seconds
 
-  instance = Channel::Driver::Smtp.new
-  instance.send(
-    {
-      host:                 'some.host',
-      port:                 25,
-      enable_starttls_auto: true, # optional
-      openssl_verify_mode:  'none', # optional
-      user:                 'someuser',
-      password:             'somepass'
-      authentication:       nil, # nil, autodetection - to use certain schema use 'plain', 'login', 'xoauth2' or 'cram_md5'
-    },
-    mail_attributes,
-    notification
-  )
-
-=end
-
-  def deliver(options, attr, notification = false)
+  # Sends a message via SMTP
+  #
+  # @example
+  # instance = Channel::Driver::Smtp.new
+  # instance.deliver(
+  #  {
+  #    host:                 'some.host',
+  #    port:                 25,
+  #    enable_starttls_auto: true, # optional
+  #    openssl_verify_mode:  'none', # optional
+  #    user:                 'someuser',
+  #    password:             'somepass'
+  #    authentication:       nil, # nil, autodetection - to use certain schema use 'plain', 'login', 'xoauth2' or 'cram_md5'
+  #  },
+  #  mail_attributes,
+  #  notification
+  # )
+  def deliver(options, attr, notification = false) # rubocop:disable Style/OptionalBooleanParameter
     # return if we run import mode
     return if Setting.get('import_mode')
 

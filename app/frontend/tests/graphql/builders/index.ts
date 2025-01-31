@@ -903,6 +903,5 @@ export const mockOperation = (
       )
     })
   }
-  debugger
   return query
 }

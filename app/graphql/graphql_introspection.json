@@ -2676,6 +2676,16 @@
                 "ofType": null
               },
               "defaultValue": null
+            },
+            {
+              "name": "archiveStateId",
+              "description": "Archive ticket target state internal ID",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null
             }
           ],
           "interfaces": null,
@@ -2687,42 +2697,6 @@
           "name": "ChannelEmailInboundMailboxStats",
           "description": "Inbound mailbox statistics.",
           "fields": [
-            {
-              "name": "archivePossible",
-              "description": "Whether an archive import of the email account should be suggested.",
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "archivePossibleIsFallback",
-              "description": "Whether the archive import suggestion is based on a fallback logic due to a missing DATE sort option on the mail server.",
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "archiveWeekRange",
-              "description": "There were emails found older than the specified amount of weeks, therefore an archive import should be suggested.",
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
             {
               "name": "contentMessages",
               "description": "Number of content emails found during account probing.",
@@ -4061,6 +4035,12 @@
               "deprecationReason": null
             },
             {
+              "name": "openid_connect",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "saml",
               "description": null,
               "isDeprecated": false,
@@ -4247,6 +4227,12 @@
           "inputFields": null,
           "interfaces": null,
           "enumValues": [
+            {
+              "name": "FormUpdater__Updater__GuidedSetup__EmailArchive",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
             {
               "name": "FormUpdater__Updater__GuidedSetup__EmailInbound",
               "description": null,
@@ -13451,6 +13437,30 @@
               "deprecationReason": null
             },
             {
+              "name": "groupBy",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "groupDirection",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "ENUM",
+                "name": "EnumOrderDirection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "id",
               "description": null,
               "args": [],
@@ -13661,21 +13671,10 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "OverviewConnection",
-          "description": "The connection type for Overview.",
-          "fields": [
+            },
             {
-              "name": "edges",
-              "description": "A list of edges.",
+              "name": "viewColumnsRaw",
+              "description": "Columns to be shown on screen",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -13687,86 +13686,11 @@
                     "kind": "NON_NULL",
                     "name": null,
                     "ofType": {
-                      "kind": "OBJECT",
-                      "name": "OverviewEdge",
+                      "kind": "SCALAR",
+                      "name": "String",
                       "ofType": null
                     }
                   }
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "pageInfo",
-              "description": "Information to aid in pagination.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "PageInfo",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "totalCount",
-              "description": "Indicates the total number of available records.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "OverviewEdge",
-          "description": "An edge in a connection.",
-          "fields": [
-            {
-              "name": "cursor",
-              "description": "A cursor for use in pagination.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "node",
-              "description": "The item at the end of the edge.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Overview",
-                  "ofType": null
                 }
               },
               "isDeprecated": false,
@@ -15960,49 +15884,13 @@
                   "name": "ignoreUserConditions",
                   "description": "Include additional overviews by ignoring user conditions",
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Boolean",
-                    "ofType": null
-                  },
-                  "defaultValue": "false"
-                },
-                {
-                  "name": "after",
-                  "description": "Returns the elements in the list that come after the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "before",
-                  "description": "Returns the elements in the list that come before the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "first",
-                  "description": "Returns the first _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "last",
-                  "description": "Returns the last _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Boolean",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": null
                 }
@@ -16011,9 +15899,17 @@
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
-                  "kind": "OBJECT",
-                  "name": "OverviewConnection",
-                  "ofType": null
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "Overview",
+                      "ofType": null
+                    }
+                  }
                 }
               },
               "isDeprecated": false,
@@ -16509,30 +16405,6 @@
               "deprecationReason": null
             },
             {
-              "name": "userCurrentOverviewList",
-              "description": "Fetch available overviews of the currently logged-in user",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "OBJECT",
-                      "name": "Overview",
-                      "ofType": null
-                    }
-                  }
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "userCurrentTaskbarItemList",
               "description": "Fetch available taskbar item list of the currently logged-in user",
               "args": [
@@ -16557,6 +16429,45 @@
                     "kind": "OBJECT",
                     "name": "UserTaskbarItem",
                     "ofType": null
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "userCurrentTicketOverviews",
+              "description": "Ticket overviews according to the personal sorting of the current user",
+              "args": [
+                {
+                  "name": "ignoreUserConditions",
+                  "description": "Include additional overviews by ignoring user conditions",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Boolean",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "Overview",
+                      "ofType": null
+                    }
                   }
                 }
               },
@@ -17281,22 +17192,7 @@
             {
               "name": "onlineNotificationsCount",
               "description": "Updates unseen notifications count",
-              "args": [
-                {
-                  "name": "userId",
-                  "description": "ID of the user to receive updates for",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
+              "args": [],
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -17481,20 +17377,6 @@
               "description": "Updates to ticket live users (for agents).",
               "args": [
                 {
-                  "name": "userId",
-                  "description": "ID of the user to receive updates for",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                },
-                {
                   "name": "key",
                   "description": "Taskbar key to filter for.",
                   "type": {
@@ -17543,11 +17425,15 @@
                   "name": "ignoreUserConditions",
                   "description": "Include additional overviews by ignoring user conditions",
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Boolean",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Boolean",
+                      "ofType": null
+                    }
                   },
-                  "defaultValue": "false"
+                  "defaultValue": null
                 }
               ],
               "type": {
@@ -17640,23 +17526,8 @@
             },
             {
               "name": "userCurrentAccessTokenUpdates",
-              "description": "Updates to given user access tokens",
-              "args": [
-                {
-                  "name": "userId",
-                  "description": "ID of the user to receive access token updates for",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
+              "description": "Updates to user access tokens",
+              "args": [],
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -17672,22 +17543,7 @@
             {
               "name": "userCurrentAvatarUpdates",
               "description": "Updates to account avatar records",
-              "args": [
-                {
-                  "name": "userId",
-                  "description": "ID of the user to receive avatar updates for",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
+              "args": [],
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -17703,22 +17559,7 @@
             {
               "name": "userCurrentDevicesUpdates",
               "description": "Updates to account devices records",
-              "args": [
-                {
-                  "name": "userId",
-                  "description": "ID of the user to receive devices updates for",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
+              "args": [],
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -17736,14 +17577,14 @@
               "description": "Updates to account overview sorting records",
               "args": [
                 {
-                  "name": "userId",
-                  "description": "ID of the user to receive overview sorting updates for",
+                  "name": "ignoreUserConditions",
+                  "description": "Include additional overviews by ignoring user conditions",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
                     "ofType": {
                       "kind": "SCALAR",
-                      "name": "ID",
+                      "name": "Boolean",
                       "ofType": null
                     }
                   },
@@ -17766,20 +17607,6 @@
               "name": "userCurrentTaskbarItemListUpdates",
               "description": "Subscription for taskbar item list priority changes",
               "args": [
-                {
-                  "name": "userId",
-                  "description": "Filter by user",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                },
                 {
                   "name": "app",
                   "description": "Taskbar app to filter for.",
@@ -17843,20 +17670,6 @@
               "description": "Changes to the list of taskbar items of the currently logged-in user",
               "args": [
                 {
-                  "name": "userId",
-                  "description": "Filter by user",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                },
-                {
                   "name": "app",
                   "description": "Filter by app",
                   "type": {
@@ -17884,24 +17697,40 @@
               "deprecationReason": null
             },
             {
-              "name": "userCurrentTwoFactorUpdates",
-              "description": "Updates to current user two factor records",
+              "name": "userCurrentTicketOverviewUpdates",
+              "description": "Updates to overviews according to the sorting of the current user",
               "args": [
                 {
-                  "name": "userId",
-                  "description": "ID of the user to receive avatar updates for",
+                  "name": "ignoreUserConditions",
+                  "description": "Include additional overviews by ignoring user conditions",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
                     "ofType": {
                       "kind": "SCALAR",
-                      "name": "ID",
+                      "name": "Boolean",
                       "ofType": null
                     }
                   },
                   "defaultValue": null
                 }
               ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "UserCurrentTicketOverviewUpdatesPayload",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "userCurrentTwoFactorUpdates",
+              "description": "Updates to current user two factor records",
+              "args": [],
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -19008,6 +18837,18 @@
           "description": "Tickets",
           "fields": [
             {
+              "name": "articleCount",
+              "description": "Count of ticket articles that were not sent by 'System'.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "checklist",
               "description": "Returns the checklist of this ticket, if present",
               "args": [],
@@ -19251,6 +19092,18 @@
                   "name": "Int",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "lastCloseAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "ISO8601DateTime",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -19865,6 +19718,18 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "detectedLanguage",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -22947,52 +22812,19 @@
             {
               "name": "ticketOverviews",
               "description": "Current ticket overviews for the user.",
-              "args": [
-                {
-                  "name": "after",
-                  "description": "Returns the elements in the list that come after the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "before",
-                  "description": "Returns the elements in the list that come before the specified cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "first",
-                  "description": "Returns the first _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "last",
-                  "description": "Returns the last _n_ elements from the list.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                }
-              ],
+              "args": [],
               "type": {
-                "kind": "OBJECT",
-                "name": "OverviewConnection",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Overview",
+                    "ofType": null
+                  }
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -26740,7 +26572,7 @@
           "fields": [
             {
               "name": "overviews",
-              "description": "List of overview sortings for the user",
+              "description": "List of sorted overviews for the user",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -27274,6 +27106,37 @@
                 "kind": "OBJECT",
                 "name": "UserTaskbarItem",
                 "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "UserCurrentTicketOverviewUpdatesPayload",
+          "description": "Autogenerated return type of UserCurrentTicketOverviewUpdates.",
+          "fields": [
+            {
+              "name": "ticketOverviews",
+              "description": "Current ticket overviews for the user.",
+              "args": [],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Overview",
+                    "ofType": null
+                  }
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null

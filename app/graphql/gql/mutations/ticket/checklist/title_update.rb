@@ -10,7 +10,7 @@ module Gql::Mutations
     field :checklist, Gql::Types::ChecklistType, null: true, description: 'Created checklist'
 
     def authorized?(checklist:, title: '')
-      Pundit.authorize(context.current_user, checklist, :update?)
+      pundit_authorized?(checklist, :update?)
     end
 
     def resolve(checklist:, title: '')

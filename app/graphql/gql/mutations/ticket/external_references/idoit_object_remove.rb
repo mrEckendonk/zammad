@@ -14,7 +14,7 @@ module Gql::Mutations
     end
 
     def authorized?(idoit_object_id:, ticket:)
-      Pundit.authorize(context.current_user, ticket, :agent_update_access?)
+      pundit_authorized?(ticket, :agent_update_access?)
     end
 
     def resolve(idoit_object_id:, ticket: nil)

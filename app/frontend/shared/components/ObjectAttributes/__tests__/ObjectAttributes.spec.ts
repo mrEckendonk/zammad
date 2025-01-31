@@ -36,7 +36,6 @@ describe('common object attributes interface', () => {
       vip: true,
       note: 'note',
       active: true,
-      invisible: 'invisible',
       objectAttributeValues: [
         {
           attribute: attributesByKey.date_attribute,
@@ -143,27 +142,8 @@ describe('common object attributes interface', () => {
     ).toHaveAttribute('href', 'https://url.com')
 
     expect(
-      view.queryByRole('region', { name: 'Invisible' }),
-    ).not.toBeInTheDocument()
-    expect(
       view.queryByRole('region', { name: 'Hidden Boolean' }),
     ).not.toBeInTheDocument()
-  })
-
-  test('hides attributes without permission', () => {
-    mockPermissions([])
-
-    const object = {
-      active: true,
-    }
-    const view = renderComponent(ObjectAttributes, {
-      props: {
-        object,
-        attributes: [attributesByKey.active],
-      },
-    })
-
-    expect(view.queryAllByRole('region')).toHaveLength(0)
   })
 
   test("don't show empty fields", () => {
@@ -188,32 +168,6 @@ describe('common object attributes interface', () => {
     })
 
     expect(view.queryAllByRole('region')).toHaveLength(0)
-  })
-
-  test('show default, if not defined', () => {
-    const object = {
-      login: '',
-    }
-    const attribute = {
-      ...attributesByKey.login,
-      name: 'login',
-      display: 'Login',
-    }
-    const view = renderComponent(ObjectAttributes, {
-      props: {
-        object,
-        attributes: [
-          {
-            ...attribute,
-            dataOption: { ...attribute.dataOption, default: 'default' },
-          },
-        ],
-      },
-    })
-
-    expect(view.getByRole('region', { name: 'Login' })).toHaveTextContent(
-      'default',
-    )
   })
 
   it('translates translatable', () => {

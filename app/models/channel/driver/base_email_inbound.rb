@@ -1,17 +1,9 @@
 # Copyright (C) 2012-2025 Zammad Foundation, https://zammad-foundation.org/
 
 class Channel::Driver::BaseEmailInbound < Channel::EmailParser
-  def fetch(_options, _channel)
-    raise 'not implemented'
-  end
+  ACTIVE_CHECK_INTERVAL = 20
 
-  def check(_options)
-    raise 'not implemented'
-  end
-
-  def verify(_options, _verify_string)
-    raise 'not implemented'
-  end
+  MessageResult = Struct.new(:success, :after_action, keyword_init: true)
 
   def fetchable?(_channel)
     true
@@ -35,86 +27,153 @@ class Channel::Driver::BaseEmailInbound < Channel::EmailParser
     true
   end
 
-  # Checks if email is not too big for processing
+  # Fetches emails
   #
-  # @param [Integer] size in bytes
+  # @param options [Hash]. See subclass for options
+  # @param channel [Channel]
   #
-  # This method is used by IMAP and MicrosoftGraphInbound only
-  # It may be possible to reuse them with POP3 too, but it needs further refactoring
-  def too_large?(message_meta_size)
-    max_message_size = Setting.get('postmaster_max_size').to_f
-    real_message_size = message_meta_size.to_f / 1024 / 1024
-    if real_message_size > max_message_size
-      return [real_message_size, max_message_size]
+  # @return [Hash]
+  #
+  #  {
+  #    result: 'ok',
+  #    fetched: 123,
+  #    notice: 'e. g. message about to big emails in mailbox',
+  #  }
+  def fetch(options, channel)
+    @channel        = channel
+    @options        = options
+    @keep_on_server = ActiveModel::Type::Boolean.new.cast(options[:keep_on_server])
+
+    setup_connection(options)
+
+    collection, count_all = messages_iterator(@keep_on_server, options)
+    count_fetched         = 0
+    too_large_messages    = []
+    result                = 'ok'
+    notice                = ''
+
+    collection.each.with_index(1) do |message_id, count|
+      break if stop_fetching?(count)
+
+      Rails.logger.info " - message #{count}/#{count_all}"
+
+      message_result = fetch_single_message(message_id, count, count_all)
+
+      count_fetched += 1 if message_result.success
+
+      case message_result.after_action
+      in [:too_large_ignored, message]
+        notice += message
+        too_large_messages << message
+      in [:notice, message]
+        notice += message
+      in [:result_error, message]
+        result = 'error'
+        notice += message
+      else
+      end
     end
 
-    false
-  end
+    fetch_wrap_up
 
-  # Checks if a message with the given headers is a Zammad verify message
-  #
-  # This method is used by IMAP and MicrosoftGraphInbound only
-  # It may be possible to reuse them with POP3 too, but it needs further refactoring
-  def messages_is_verify_message?(headers)
-    return true if headers['X-Zammad-Verify'] == 'true'
-
-    false
-  end
-
-  # Checks if a message with the given headers marked to be ignored by Zammad
-  #
-  # This method is used by IMAP and MicrosoftGraphInbound only
-  # It may be possible to reuse them with POP3 too, but it needs further refactoring
-  def messages_is_ignore_message?(headers)
-    return true if headers['X-Zammad-Ignore'] == 'true'
-
-    false
-  end
-
-  # Checks if a message is an old Zammad verify message
-  #
-  # Returns false only if a verify message is less than 30 minutes old
-  #
-  # This method is used by IMAP and MicrosoftGraphInbound only
-  # It may be possible to reuse them with POP3 too, but it needs further refactoring
-  def messages_is_too_old_verify?(headers, count, count_all)
-    return true if !messages_is_verify_message?(headers)
-    return true if headers['X-Zammad-Verify-Time'].blank?
-
-    begin
-      verify_time = Time.zone.parse(headers['X-Zammad-Verify-Time'])
-    rescue => e
-      Rails.logger.error e
-      return true
+    if count_all.zero?
+      Rails.logger.info ' - no message'
     end
-    return true if verify_time < 30.minutes.ago
 
-    Rails.logger.info "  - ignore message #{count}/#{count_all} - because message has a verify message"
+    # Error is raised if one of the messages was too large AND postmaster_send_reject_if_mail_too_large is turned off.
+    # This effectivelly marks channels as stuck and gets highlighted for the admin.
+    # New emails are still processed! But large email is not touched, so error keeps being re-raised on every fetch.
+    if too_large_messages.present?
+      raise too_large_messages.join("\n")
+    end
 
-    false
+    {
+      result:  result,
+      fetched: count_fetched,
+      notice:  notice,
+    }
   end
 
-  # Checks if a message is already imported in a given channel
-  # This check is skipped for channels which do not keep messages on the server
+  def stop_fetching?(count)
+    (count % ACTIVE_CHECK_INTERVAL).zero? && channel_has_changed?(@channel)
+  end
+
+  def fetch_wrap_up; end
+
+  # Checks if mailbox has anything besides Zammad verification emails.
+  # If any real messages exists, return the real count including messages to be ignored when importing.
+  # If only verification messages found, return 0.
   #
-  # This method is used by IMAP and MicrosoftGraphInbound only
-  # It may be possible to reuse them with POP3 too, but it needs further refactoring
-  def already_imported?(headers, keep_on_server, channel)
-    return false if !keep_on_server
+  # @param options [Hash] driver-specific server setup. See #fetch in the corresponding driver.
+  #
+  # @return [Hash]
+  #
+  # {
+  #   result: 'ok'
+  #   content_messages: 123 # or 0 if there're none
+  # }
+  def check_configuration(options)
+    setup_connection(options, check: true)
 
-    return false if !headers
+    Rails.logger.info 'check only mode, fetch no emails'
 
-    local_message_id = headers['Message-ID']
-    return false if local_message_id.blank?
+    collection, count_all = messages_iterator(false, options)
 
-    local_message_id_md5 = Digest::MD5.hexdigest(local_message_id)
-    article = Ticket::Article.where(message_id_md5: local_message_id_md5).reorder('created_at DESC, id DESC').limit(1).first
-    return false if !article
+    has_content_messages = collection
+      .any? do |message_id|
+        validator = check_single_message(message_id)
 
-    # verify if message is already imported via same channel, if not, import it again
-    ticket = article.ticket
-    return false if ticket&.preferences && ticket.preferences[:channel_id].present? && channel.present? && ticket.preferences[:channel_id] != channel[:id]
+        next if !validator
 
-    true
+        !validator.verify_message? && !validator.ignore?
+      end
+
+    disconnect
+
+    {
+      result:           'ok',
+      content_messages: has_content_messages ? count_all : 0,
+    }
+  end
+
+  # Checks if probing email has arrived
+  #
+  # This method is used for custom IMAP only.
+  # It is not used in conjunction with Micrsofot365 or Gogle OAuth channels.
+  #
+  # @param options [Hash] driver-specific server setup. See #fetch in the corresponding driver.
+  # @param verify_string [String] to check with
+  #
+  # @return [Hash]
+  #
+  # {
+  #   result: 'ok' # or 'verify not ok' in case of failure
+  # }
+  def verify_transport(options, verify_string)
+    setup_connection(options)
+
+    collection, _count_all = messages_iterator(false, options, reverse: true)
+
+    Rails.logger.info "verify mode, fetch no emails #{verify_string}"
+
+    verify_regexp = %r{#{verify_string}}
+
+    # check for verify message
+    verify_message_id = collection.find do |message_id|
+      verify_single_message(message_id, verify_regexp)
+    end
+
+    result = if verify_message_id
+               Rails.logger.info " - verify email #{verify_string} found"
+               verify_message_cleanup(verify_message_id)
+
+               'ok'
+             else
+               'verify not ok'
+             end
+
+    disconnect
+
+    { result:, }
   end
 end

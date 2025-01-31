@@ -62,7 +62,6 @@ export const useTicketLiveUserList = (
   const liveUserSubscription = new SubscriptionHandler(
     useTicketLiveUserUpdatesSubscription(
       () => ({
-        userId,
         key: `Ticket-${ticketInternalId.value}`,
         app,
       }),

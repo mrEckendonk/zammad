@@ -25,8 +25,8 @@ describe('CommonTicketPriorityIndicator.vue', () => {
     })
 
     expect(view.getByText('1 low')).toHaveClasses([
-      'bg-blue-highlight',
-      'text-blue',
+      'bg-gray-highlight',
+      'text-gray',
     ])
   })
 

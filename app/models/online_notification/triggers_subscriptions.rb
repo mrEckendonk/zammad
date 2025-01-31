@@ -9,8 +9,6 @@ module OnlineNotification::TriggersSubscriptions
   end
 
   def trigger_subscriptions
-    Gql::Subscriptions::OnlineNotificationsCount
-      .trigger(user,
-               arguments: { user_id: Gql::ZammadSchema.id_from_object(user) })
+    Gql::Subscriptions::OnlineNotificationsCount.trigger(user, scope: user.id)
   end
 end

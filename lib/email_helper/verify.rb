@@ -35,7 +35,7 @@ class EmailHelper
         begin
           driver_class    = "Channel::Driver::#{adapter.to_classname}".constantize
           driver_instance = driver_class.new
-          fetch_result    = driver_instance.verify(params[:inbound][:options], subject)
+          fetch_result    = driver_instance.verify_transport(params[:inbound][:options], subject)
         rescue => e
           result = {
             result:        'invalid',

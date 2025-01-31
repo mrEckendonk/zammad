@@ -34,7 +34,7 @@ class Service::System::Import::ApplyConfigurationBase < Service::Base
   end
 
   def request(url, options = {})
-    response = UserAgent.request(url, options)
+    response = UserAgent.get(url, {}, options)
     raise TLSError, __('The server presented a certificate that could not be verified.') if response.error&.include?('OpenSSL::SSL::SSLError')
 
     response

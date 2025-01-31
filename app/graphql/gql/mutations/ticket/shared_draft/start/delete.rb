@@ -9,7 +9,7 @@ module Gql::Mutations
     field :success, Boolean, null: false, description: 'Was the ticket article deletion successful?'
 
     def authorized?(shared_draft:)
-      Pundit.authorize(context.current_user, shared_draft, :destroy?)
+      pundit_authorized?(shared_draft, :destroy?)
     end
 
     def resolve(shared_draft:)

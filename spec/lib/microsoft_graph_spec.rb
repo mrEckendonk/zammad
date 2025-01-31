@@ -94,17 +94,17 @@ RSpec.describe MicrosoftGraph, :aggregate_failures, integration: true, required_
 
       # Message is marked as unread on creation, should appear in unread messages list
       expect(client.list_messages(folder_id: folder['id'], unread_only: true))
-        .to include(include(id: new_message['id']))
+        .to include(total_count: 1, items: include(include(id: new_message['id'])))
 
       client.mark_message_as_read(new_message['id'])
 
       # After being marked as unread, should be gone from the same list
       expect(client.list_messages(folder_id: folder['id'], unread_only: true))
-        .not_to include(include(id: new_message['id']))
+        .not_to include(items: include(include(id: new_message['id'])))
 
       # Either way, message shows up into not-filtered-by-read-state list
       expect(client.list_messages(folder_id: folder['id']))
-        .to include(include(id: new_message['id']))
+        .to include(items: include(include(id: new_message['id'])))
 
       client.delete_message(new_message['id'])
     end
@@ -168,7 +168,7 @@ RSpec.describe MicrosoftGraph, :aggregate_failures, integration: true, required_
         sleep 3
       end
 
-      mails = client.list_messages(unread_only: true, select: 'id,subject')
+      mails = client.list_messages(unread_only: true, select: 'id,subject').fetch(:items)
 
       expect(mails).to include(
         include(subject: mail_subject)
@@ -185,8 +185,8 @@ RSpec.describe MicrosoftGraph, :aggregate_failures, integration: true, required_
   end
 
   describe '#make_paginated_request' do
-    let(:page_solo) { { value: %w[A B] } }
-    let(:page_1)    { page_solo.merge '@odata.nextLink': 'page_2' }
+    let(:page_solo) { { value: %w[A B], '@odata.count': 123 } }
+    let(:page_1)    { page_solo.merge('@odata.nextLink': 'page_2', '@odata.count': 123) }
     let(:page_2)    { { value: %w[C], '@odata.nextLink': 'page_3' } }
     let(:page_3)    { { value: %w[D E] } }
 
@@ -200,7 +200,7 @@ RSpec.describe MicrosoftGraph, :aggregate_failures, integration: true, required_
       it 'returns value' do
         response = client.send(:make_paginated_request, 'path', params: { test: true })
 
-        expect(response).to eq %w[A B]
+        expect(response).to eq({ total_count: 123, items: %w[A B] })
       end
     end
 
@@ -223,7 +223,7 @@ RSpec.describe MicrosoftGraph, :aggregate_failures, integration: true, required_
         it 'returns value of the first page only' do
           response = client.send(:make_paginated_request, 'path', params: { test: true }, follow_pagination: false)
 
-          expect(response).to eq %w[A B]
+          expect(response).to eq({ total_count: 123, items: %w[A B] })
         end
       end
 
@@ -231,7 +231,7 @@ RSpec.describe MicrosoftGraph, :aggregate_failures, integration: true, required_
         it 'returns concatenated values' do
           response = client.send(:make_paginated_request, 'path', params: { test: true })
 
-          expect(response).to eq %w[A B C D E]
+          expect(response).to eq({ total_count: 123, items: %w[A B C D E] })
         end
 
         it 'raises error if loop limit is reached' do

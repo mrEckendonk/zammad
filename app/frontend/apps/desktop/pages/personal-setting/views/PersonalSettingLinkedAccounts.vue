@@ -23,11 +23,11 @@ import { ErrorStatusCodes } from '#shared/types/error.ts'
 
 import CommonButton from '#desktop/components/CommonButton/CommonButton.vue'
 import type { MenuItem } from '#desktop/components/CommonPopoverMenu/types.ts'
-import CommonSimpleTable from '#desktop/components/CommonSimpleTable/CommonSimpleTable.vue'
+import CommonSimpleTable from '#desktop/components/CommonTable/CommonSimpleTable.vue'
 import type {
-  TableHeader,
+  TableSimpleHeader,
   TableItem,
-} from '#desktop/components/CommonSimpleTable/types.ts'
+} from '#desktop/components/CommonTable/types'
 import CommonThirdPartyAuthenticationButton from '#desktop/components/CommonThirdPartyAuthenticationButton/CommonThirdPartyAuthenticationButton.vue'
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import { useBreadcrumb } from '#desktop/pages/personal-setting/composables/useBreadcrumb.ts'
@@ -78,7 +78,7 @@ const providersLookup = computed(() => {
   })
 })
 
-const tableHeaders: TableHeader[] = [
+const tableHeaders: TableSimpleHeader[] = [
   {
     key: 'application',
     label: __('Application'),
@@ -192,6 +192,7 @@ const tableActions = computed((): MenuItem[] => [
 <template>
   <LayoutContent :breadcrumb-items="breadcrumbItems" width="narrow">
     <CommonSimpleTable
+      :caption="$t('Linked accounts')"
       :headers="tableHeaders"
       :items="tableItems"
       :actions="tableActions"

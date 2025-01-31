@@ -3,6 +3,7 @@
 class Report::Profile < ApplicationModel
   self.table_name = 'report_profiles'
   include ChecksConditionValidation
+  include ChecksClientNotification
   include HasSearchIndexBackend
   include CanSelector
   include CanSearch

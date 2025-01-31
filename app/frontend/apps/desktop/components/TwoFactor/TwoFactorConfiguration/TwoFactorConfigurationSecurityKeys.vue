@@ -22,8 +22,8 @@ import type { ObjectLike } from '#shared/types/utils.ts'
 
 import CommonLoader from '#desktop/components/CommonLoader/CommonLoader.vue'
 import type { MenuItem } from '#desktop/components/CommonPopoverMenu/types.ts'
-import CommonSimpleTable from '#desktop/components/CommonSimpleTable/CommonSimpleTable.vue'
-import type { TableHeader } from '#desktop/components/CommonSimpleTable/types.ts'
+import CommonSimpleTable from '#desktop/components/CommonTable/CommonSimpleTable.vue'
+import type { TableSimpleHeader } from '#desktop/components/CommonTable/types.ts'
 
 import type { TwoFactorConfigurationComponentProps } from '../types.ts'
 
@@ -94,7 +94,7 @@ const credentials = computed<ObjectLike[]>(
   () => configuration.value?.credentials || [],
 )
 
-const tableHeaders: TableHeader[] = [
+const tableHeaders: TableSimpleHeader[] = [
   {
     key: 'nickname',
     label: __('Name'),
@@ -345,6 +345,7 @@ defineExpose({
         }}</CommonLabel>
         <CommonSimpleTable
           v-if="tableItems.length"
+          :caption="$t('Security keys')"
           :headers="tableHeaders"
           :items="tableItems"
           :actions="tableActions"

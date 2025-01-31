@@ -36,6 +36,12 @@ export interface Props {
   showSidebar?: boolean
   noPadding?: boolean
   /**
+   * Removes padding from main container
+   * Applies padding to breadcrumb container
+   * ⚠️ Set manually the padding to the default slot container p-4
+   */
+  contentPadding?: boolean
+  /**
    * Disables the vertical scroll on the main element
    */
   noScrollable?: boolean
@@ -80,7 +86,7 @@ const { durations } = useTransitionConfig()
 <template>
   <div class="flex h-full max-h-screen flex-col">
     <div
-      class="grid h-full overflow-y-auto duration-100"
+      class="grid h-full duration-100"
       :class="{
         'transition-none': noTransition,
         'max-h-[calc(100%-3.5rem)]': $slots.bottomBar,
@@ -90,7 +96,7 @@ const { durations } = useTransitionConfig()
     >
       <LayoutMain
         ref="layout-main"
-        :no-padding="noPadding"
+        :no-padding="noPadding || contentPadding"
         :no-scrollable="noScrollable"
         :background-variant="backgroundVariant"
       >
@@ -100,7 +106,12 @@ const { durations } = useTransitionConfig()
           :class="contentAlignmentClass"
           :style="{ maxWidth }"
         >
-          <div v-if="breadcrumbItems" class="flex items-center justify-between">
+          <div
+            v-if="breadcrumbItems"
+            data-test-id="wrapper-breadcrumb"
+            class="flex items-center justify-between"
+            :class="{ 'px-4 pt-4': contentPadding }"
+          >
             <CommonBreadcrumb :items="breadcrumbItems" />
             <div
               v-if="$slots.headerRight || helpText || $slots.helpPage"

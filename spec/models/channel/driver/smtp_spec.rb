@@ -27,8 +27,6 @@ RSpec.describe Channel::Driver::Smtp, integration: true, required_envs: %w[MAIL_
   let(:article)    { create(:ticket_article, :outbound_email, ticket: ticket, to: Faker::Internet.unique.email, subject: 'some subject', message_id: 'some@id', body: 'some message delivery test') }
 
   before do
-    ENV['ZAMMAD_MAIL_TO_FILE'] = '1'
-
     freeze_time
     email_address.update!(channel_id: channel.id)
     ticket && article

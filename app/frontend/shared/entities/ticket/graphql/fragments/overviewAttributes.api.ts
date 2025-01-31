@@ -7,6 +7,7 @@ export const OverviewAttributesFragmentDoc = gql`
   name
   link
   prio
+  groupBy
   orderBy
   orderDirection
   viewColumns {
@@ -20,6 +21,7 @@ export const OverviewAttributesFragmentDoc = gql`
   organizationShared
   outOfOffice
   active
+  viewColumnsRaw
   ticketCount @include(if: $withTicketCount)
 }
     `;

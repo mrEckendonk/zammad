@@ -47,4 +47,52 @@ RSpec.describe 'Google channel API endpoints', type: :request do
       end
     end
   end
+
+  describe 'POST /api/v1/channels_google/inbound/ID' do
+    let(:channel) { create(:google_channel) }
+    let(:group)   { create(:group) }
+
+    before do
+      Channel.where(area: 'Google::Account').each(&:destroy)
+      allow_any_instance_of(Channel).to receive(:refresh_xoauth2!).and_return(true)
+      allow(EmailHelper::Probe).to receive(:inbound).and_return({ result: 'ok' })
+    end
+
+    it 'does not update inbound options of the channel' do
+      expect do
+        post "/api/v1/channels_google/inbound/#{channel.id}", params: { group_id: group.id, options: { folder: 'SomeFolder', keep_on_server: 'true' } }
+      end.not_to change(channel, :updated_at)
+    end
+  end
+
+  describe 'POST /api/v1/channels_google/verify/ID', aggregate_failures: true, authenticated_as: :admin do
+    let(:channel) { create(:google_channel) }
+    let(:group)   { create(:group) }
+
+    before do
+      Channel.where(area: 'Google::Account').each(&:destroy)
+    end
+
+    it 'updates inbound options of the channel' do
+      post "/api/v1/channels_google_verify/#{channel.id}", params: { group_id: group.id, options: { folder: 'SomeFolder', keep_on_server: 'true', archive: 'true', archive_before: '2025-01-01T00.00.000Z', archive_state_id: Ticket::State.find_by(name: 'open').id } }
+      expect(response).to have_http_status(:ok)
+
+      channel.reload
+
+      expect(channel).to have_attributes(
+        group_id: group.id,
+        options:  include(
+          inbound: include(
+            options: include(
+              folder:           'SomeFolder',
+              keep_on_server:   'true',
+              archive:          'true',
+              archive_before:   '2025-01-01T00.00.000Z',
+              archive_state_id: Ticket::State.find_by(name: 'open').id.to_s,
+            )
+          )
+        )
+      )
+    end
+  end
 end

@@ -29,7 +29,7 @@ const router = useRouter()
     >
       <template #default="{ headerId }">
         <nav :aria-labelledby="headerId">
-          <ul>
+          <ul class="m-0 flex basis-full flex-col gap-1 p-0">
             <li
               v-for="route in sortedFirstLevelRoutes"
               :key="route.path"
@@ -38,19 +38,19 @@ const router = useRouter()
               <CommonButton
                 v-if="collapsed"
                 class="flex-shrink-0 text-neutral-400 hover:outline-blue-900"
-                :class="{
-                  '!bg-blue-800 !text-white':
-                    router.currentRoute.value.path === route.path,
-                }"
                 size="large"
                 variant="neutral"
                 :icon="route.meta.icon"
-                @click="router.push(route.path)"
+                @click="router.push(route.path.replace(/:\w+/, ''))"
               />
               <CommonLink
                 v-else
                 class="flex grow gap-2 rounded-md px-2 py-3 text-neutral-400 hover:bg-blue-900 hover:text-white hover:no-underline"
-                :link="route.path"
+                :class="{
+                  '!bg-blue-800 !text-white':
+                    router.currentRoute.value.name === route.name, // $route.name is not detected by ts
+                }"
+                :link="route.path.replace(/\/:\w+/, '')"
                 exact-active-class="!bg-blue-800 w-full !text-white"
                 internal
               >

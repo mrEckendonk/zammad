@@ -5,7 +5,7 @@ import { computed, ref, toRef } from 'vue'
 
 import CommonUserAvatar from '#shared/components/CommonUserAvatar/CommonUserAvatar.vue'
 import ObjectAttributes from '#shared/components/ObjectAttributes/ObjectAttributes.vue'
-import { useOnlineNotificationSeen } from '#shared/composables/useOnlineNotificationSeen.ts'
+import { useOnlineNotificationSeen } from '#shared/composables/useOnlineNotification/useOnlineNotificationSeen.ts'
 import { useUserDetail } from '#shared/entities/user/composables/useUserDetail.ts'
 import { useErrorHandler } from '#shared/errors/useErrorHandler.ts'
 

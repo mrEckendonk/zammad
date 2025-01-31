@@ -9,16 +9,7 @@ export type ReactiveFunction<TParam> = () => TParam;
 export const TicketOverviewOrderDocument = gql`
     query ticketOverviewOrder($withTicketCount: Boolean = false) {
   ticketOverviews(ignoreUserConditions: true) {
-    edges {
-      node {
-        ...overviewAttributes
-      }
-      cursor
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
+    ...overviewAttributes
   }
 }
     ${OverviewAttributesFragmentDoc}`;

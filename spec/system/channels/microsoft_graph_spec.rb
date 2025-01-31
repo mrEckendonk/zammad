@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', type: :system do
+RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', time_zone: 'Europe/London', type: :system do
   let(:client_id)     { SecureRandom.uuid }
   let(:client_secret) { SecureRandom.urlsafe_base64(40) }
   let(:client_tenant) { SecureRandom.uuid }
@@ -29,11 +29,11 @@ RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', type: :system do
 
       expect(ExternalCredential.last).to have_attributes(
         name:        'microsoft_graph',
-        credentials: include({
-                               'client_id'     => client_id,
-                               'client_secret' => client_secret,
-                               'client_tenant' => client_tenant,
-                             })
+        credentials: include(
+          client_id:     client_id,
+          client_secret: client_secret,
+          client_tenant: client_tenant,
+        )
       )
     end
   end
@@ -67,9 +67,6 @@ RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', type: :system do
           expect(page).to have_validation_message_for('[name="shared_mailbox"]')
 
           set_input_field_value('shared_mailbox', shared_mailbox)
-
-          # We stop short of redirecting to the Microsoft login page.
-          # click_on 'Authenticate'
         end
       end
     end
@@ -78,6 +75,7 @@ RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', type: :system do
       let(:channel)    { create(:microsoft_graph_channel, group: group1, inbound_options: { 'folder_id' => folder_id1, 'keep_on_server' => true }, active: false) }
       let(:group1)     { create(:group) }
       let(:group2)     { create(:group) }
+      let(:state)      { Ticket::State.find_by(name: 'open') }
       let(:folder_id1) { Base64.strict_encode64(Faker::Crypto.unique.sha256) }
       let(:folder_id2) { Base64.strict_encode64(Faker::Crypto.unique.sha256) }
 
@@ -102,37 +100,127 @@ RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', type: :system do
         allow_any_instance_of(Channel).to receive(:refresh_xoauth2!).and_return(true)
         allow_any_instance_of(MicrosoftGraph).to receive(:get_message_folders_tree).and_return(folders)
         allow(EmailHelper::Probe).to receive(:inbound).and_return({ result: 'ok' })
-
-        visit '#channels/microsoft_graph'
-
-        find('.js-editInbound', text: 'Edit').click
       end
 
-      it 'displays inbound configuration dialog' do
-        in_modal do
-          # TODO: Re-enable when the tree select filter mechanism is fixed to account for primitive values.
-          # check_tree_select_field_value('group_id', group1.id.to_s)
-          check_tree_select_field_value('options::folder_id', folder_id1)
-          check_select_field_value('options::keep_on_server', 'true')
-
-          set_tree_select_value('group_id', group2.id.to_s)
-          set_tree_select_value('options::folder_id', folder_id2)
-          set_select_field_label('options::keep_on_server', 'no')
-
-          click_on 'Save'
+      context 'when editing a freshly added account' do
+        before do
+          visit "#channels/microsoft_graph/#{channel.id}"
         end
 
-        expect(channel.reload).to have_attributes(
-          group_id: group2.id,
-          options:  include({
-                              'inbound' => include({
-                                                     'options' => include({
-                                                                            'folder_id'      => folder_id2,
-                                                                            'keep_on_server' => false,
-                                                                          }),
-                                                   }),
-                            }),
-        )
+        context 'when no emails exist' do
+          before do
+            allow(EmailHelper::Probe).to receive(:inbound).and_return({ result: 'ok', content_messages: 0 })
+          end
+
+          it 'does not display archive dialog but saves channel' do
+            in_modal do
+              set_tree_select_value('group_id', group1.id.to_s)
+              set_tree_select_value('options::folder_id', folder_id2)
+              click_on 'Save'
+            end
+
+            expect(channel.reload).to have_attributes(
+              active:  true,
+              options: include(inbound: include(options: include(folder_id: folder_id2)))
+            )
+          end
+        end
+
+        context 'when some emails exist' do
+          before do
+            allow(EmailHelper::Probe).to receive(:inbound).and_return({ result: 'ok', content_messages: 123 })
+          end
+
+          it 'displays inbound configuration dialog' do
+            visit "#channels/microsoft_graph/#{channel.id}"
+
+            in_modal do
+              check_tree_select_field_value('group_id', group1.id.to_s)
+              check_tree_select_field_value('options::folder_id', folder_id1)
+              check_select_field_value('options::keep_on_server', 'true')
+
+              set_tree_select_value('group_id', group2.id.to_s)
+              set_tree_select_value('options::folder_id', folder_id2)
+              set_select_field_label('options::keep_on_server', 'no')
+
+              click_on 'Save'
+            end
+
+            in_modal do
+              set_select_field_value('options::archive_state_id', state.id.to_s)
+              set_date_field_value('options::archive_before', '12/01/2024')
+              click_on 'Submit'
+            end
+
+            expect(channel.reload).to have_attributes(
+              group_id: group2.id,
+              active:   true,
+              options:  include(
+                inbound: include(
+                  options: include(
+                    folder_id:        folder_id2,
+                    keep_on_server:   false,
+                    archive:          true,
+                    archive_state_id: state.id.to_s,
+                    archive_before:   '2024-12-01T08:00:00.000Z'
+                  ),
+                ),
+              ),
+            )
+          end
+        end
+      end
+
+      context 'when editing an existing channel' do
+        before do
+          channel.options[:inbound][:options]
+            .merge!(archive: true, archive_state_id: state.id.to_s, archive_before: '2024-12-01T08:00:00.000Z')
+          channel.save!
+
+          allow(EmailHelper::Probe).to receive(:inbound).and_return({ result: 'ok', content_messages: 0 })
+          visit '#channels/microsoft_graph'
+          find('.js-editInbound', text: 'Edit').click
+        end
+
+        it 'displays inbound configuration dialog' do
+          in_modal do
+            check_tree_select_field_value('group_id', group1.id.to_s)
+            check_tree_select_field_value('options::folder_id', folder_id1)
+            check_select_field_value('options::keep_on_server', 'true')
+
+            set_tree_select_value('group_id', group2.id.to_s)
+            set_tree_select_value('options::folder_id', folder_id2)
+            set_select_field_label('options::keep_on_server', 'no')
+
+            click_on 'Save'
+          end
+
+          in_modal do
+            check_switch_field_value('options::archive', true)
+            check_select_field_value('options::archive_state_id', state.id.to_s)
+            check_date_field_value('options::archive_before', '12/01/2024')
+
+            click '.js-switch'
+
+            click_on 'Submit'
+          end
+
+          expect(channel.reload).to have_attributes(
+            group_id: group2.id,
+            active:   false,
+            options:  include(
+              inbound: include(
+                options: include(
+                  folder_id:        folder_id2,
+                  keep_on_server:   false,
+                  archive:          false,
+                  archive_state_id: state.id.to_s,
+                  archive_before:   '2024-12-01T08:00:00.000Z'
+                ),
+              ),
+            ),
+          )
+        end
       end
     end
 
@@ -156,9 +244,7 @@ RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', type: :system do
 
       it 'displays destination group dialog' do
         in_modal do
-          # TODO: Re-enable when the tree select filter mechanism is fixed to account for primitive values.
-          # check_tree_select_field_value('group_id', group1.id.to_s)
-
+          check_tree_select_field_value('group_id', group1.id.to_s)
           set_tree_select_value('group_id', group2.id.to_s)
 
           click_on 'Submit'
@@ -246,8 +332,7 @@ RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', type: :system do
 
       it 'displays inbound configuration dialog' do
         in_modal do
-          # TODO: Re-enable when the tree select filter mechanism is fixed to account for primitive values.
-          # check_tree_select_field_value('group_id', Group.first.id.to_s)
+          check_tree_select_field_value('group_id', Group.first.id.to_s)
           check_tree_select_field_value('options::folder_id', '')
 
           set_tree_select_value('group_id', group.id.to_s)
@@ -259,14 +344,14 @@ RSpec.describe 'Manage > Channels > Microsoft 365 Graph Email', type: :system do
 
         expect(channel.reload).to have_attributes(
           group_id: group.id,
-          options:  include({
-                              'inbound' => include({
-                                                     'options' => include({
-                                                                            'folder_id'      => folder_id,
-                                                                            'keep_on_server' => true,
-                                                                          }),
-                                                   }),
-                            }),
+          options:  include(
+            inbound: include(
+              options: include(
+                folder_id:      folder_id,
+                keep_on_server: true,
+              ),
+            ),
+          ),
         )
       end
     end

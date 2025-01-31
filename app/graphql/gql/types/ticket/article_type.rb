@@ -27,6 +27,7 @@ module Gql::Types::Ticket
     field :body, String, null: false, description: 'Raw body as saved in the database.'
     field :body_with_urls, String, null: false, description: 'Body with cid: URLs replaced for inline images in HTML articles.'
     field :internal, Boolean, null: false
+    field :detected_language, String
 
     field :preferences, ::GraphQL::Types::JSON
     field :security_state, Gql::Types::Ticket::Article::SecurityStateType

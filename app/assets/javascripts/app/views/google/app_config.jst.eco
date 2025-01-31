@@ -23,7 +23,7 @@
   <h2><%- @T('Your callback URL') %></h2>
   <div class="input form-group">
     <div class="controls">
-      <input class="form-control js-select" readonly value="<%= @callbackUrl %>">
+      <input class="form-control js-select" readonly value="<%= @callbackUrl %>" name="callback_url">
     </div>
   </div>
 </fieldset>

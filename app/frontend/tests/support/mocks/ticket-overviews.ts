@@ -2,110 +2,106 @@
 
 import { TicketOverviewOrderDocument } from '#shared/entities/ticket/graphql/queries/ticket/overviewOrder.api.ts'
 import { TicketOverviewsDocument } from '#shared/entities/ticket/graphql/queries/ticket/overviews.api.ts'
+import { TicketOverviewUpdatesDocument } from '#shared/entities/ticket/graphql/subscriptions/ticketOverviewUpdates.api.ts'
 import type {
   TicketOverviewOrderQuery,
   TicketOverviewsQuery,
 } from '#shared/graphql/types.ts'
 import { EnumOrderDirection } from '#shared/graphql/types.ts'
 
-import { TicketOverviewUpdatesDocument } from '#mobile/entities/ticket/graphql/subscriptions/ticketOverviewUpdates.api.ts'
-
 import { mockGraphQLApi, mockGraphQLSubscription } from '../mock-graphql-api.ts'
 
 export const getApiTicketOverviews = (): TicketOverviewsQuery => ({
-  ticketOverviews: {
-    pageInfo: {
-      endCursor: null,
-      hasNextPage: false,
+  ticketOverviews: [
+    {
+      __typename: 'Overview',
+      id: '1',
+      name: __('Overview 1'),
+      link: 'overview_1',
+      ticketCount: 1,
+      orderBy: 'created_at',
+      orderDirection: EnumOrderDirection.Descending,
+      organizationShared: false,
+      outOfOffice: false,
+      prio: 100,
+      active: true,
+      viewColumns: [
+        { key: 'number', value: 'Number' },
+        { key: 'title', value: 'Title' },
+        { key: 'created_at', value: 'Created at' },
+        { key: 'updated_at', value: 'Updated at' },
+        { key: 'priority', value: 'Priority' },
+      ],
+      orderColumns: [
+        { key: 'number', value: 'Number' },
+        { key: 'title', value: 'Title' },
+        { key: 'created_at', value: 'Created at' },
+        { key: 'updated_at', value: 'Updated at' },
+      ],
+      viewColumnsRaw: [
+        'number',
+        'title',
+        'created_at',
+        'updated_at',
+        'priority',
+      ],
+      groupBy: null,
     },
-    edges: [
-      {
-        cursor: 'node1',
-        node: {
-          __typename: 'Overview',
-          id: '1',
-          name: __('Overview 1'),
-          link: 'overview_1',
-          ticketCount: 1,
-          orderBy: 'created_at',
-          orderDirection: EnumOrderDirection.Descending,
-          organizationShared: false,
-          outOfOffice: false,
-          prio: 100,
-          active: true,
-          viewColumns: [
-            { key: 'number', value: 'Number' },
-            { key: 'title', value: 'Title' },
-            { key: 'created_at', value: 'Created at' },
-            { key: 'updated_at', value: 'Updated at' },
-            { key: 'priority', value: 'Priority' },
-          ],
-          orderColumns: [
-            { key: 'number', value: 'Number' },
-            { key: 'title', value: 'Title' },
-            { key: 'created_at', value: 'Created at' },
-            { key: 'updated_at', value: 'Updated at' },
-          ],
-        },
-      },
-      {
-        cursor: 'node2',
-        node: {
-          __typename: 'Overview',
-          id: '2',
-          name: __('Overview 2'),
-          link: 'overview_2',
-          ticketCount: 2,
-          orderBy: 'created_at',
-          orderDirection: EnumOrderDirection.Ascending,
-          organizationShared: false,
-          outOfOffice: false,
-          prio: 200,
-          active: true,
-          viewColumns: [
-            { key: 'number', value: 'Number' },
-            { key: 'title', value: 'Title' },
-            { key: 'created_at', value: 'Created at' },
-            { key: 'updated_at', value: 'Updated at' },
-          ],
-          orderColumns: [
-            { key: 'number', value: 'Number' },
-            { key: 'title', value: 'Title' },
-            { key: 'created_at', value: 'Created at' },
-            { key: 'updated_at', value: 'Updated at' },
-          ],
-        },
-      },
-      {
-        cursor: 'node3',
-        node: {
-          __typename: 'Overview',
-          id: '3',
-          name: __('Overview 3'),
-          link: 'overview_3',
-          ticketCount: 3,
-          orderBy: 'created_at',
-          orderDirection: EnumOrderDirection.Ascending,
-          organizationShared: false,
-          outOfOffice: false,
-          prio: 300,
-          active: true,
-          viewColumns: [
-            { key: 'number', value: 'Number' },
-            { key: 'title', value: 'Title' },
-            { key: 'created_at', value: 'Created at' },
-            { key: 'updated_at', value: 'Updated at' },
-          ],
-          orderColumns: [
-            { key: 'number', value: 'Number' },
-            { key: 'title', value: 'Title' },
-            { key: 'created_at', value: 'Created at' },
-            { key: 'updated_at', value: 'Updated at' },
-          ],
-        },
-      },
-    ],
-  },
+    {
+      __typename: 'Overview',
+      id: '2',
+      name: __('Overview 2'),
+      link: 'overview_2',
+      ticketCount: 2,
+      orderBy: 'created_at',
+      orderDirection: EnumOrderDirection.Ascending,
+      organizationShared: false,
+      outOfOffice: false,
+      prio: 200,
+      active: true,
+      viewColumns: [
+        { key: 'number', value: 'Number' },
+        { key: 'title', value: 'Title' },
+        { key: 'created_at', value: 'Created at' },
+        { key: 'updated_at', value: 'Updated at' },
+      ],
+      orderColumns: [
+        { key: 'number', value: 'Number' },
+        { key: 'title', value: 'Title' },
+        { key: 'created_at', value: 'Created at' },
+        { key: 'updated_at', value: 'Updated at' },
+      ],
+      viewColumnsRaw: ['number', 'title', 'created_at', 'updated_at'],
+      groupBy: null,
+    },
+    {
+      __typename: 'Overview',
+      id: '3',
+      name: __('Overview 3'),
+      link: 'overview_3',
+      ticketCount: 3,
+      orderBy: 'created_at',
+      orderDirection: EnumOrderDirection.Ascending,
+      organizationShared: false,
+      outOfOffice: false,
+      prio: 300,
+      active: true,
+      viewColumns: [
+        { key: 'number', value: 'Number' },
+        { key: 'title', value: 'Title' },
+        { key: 'created_at', value: 'Created at' },
+        { key: 'updated_at', value: 'Updated at' },
+      ],
+      orderColumns: [
+        { key: 'number', value: 'Number' },
+        { key: 'title', value: 'Title' },
+        { key: 'created_at', value: 'Created at' },
+        { key: 'updated_at', value: 'Updated at' },
+      ],
+      viewColumnsRaw: ['number', 'title', 'created_at', 'updated_at'],
+      groupBy: null,
+    },
+  ],
 })
 
 export const mockTicketOverviews = (overviews?: TicketOverviewsQuery) => {

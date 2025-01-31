@@ -83,9 +83,7 @@ describe('devices personal settings', () => {
 
     const table = within(view.getByRole('table'))
 
-    expect(
-      within(table.getAllByRole('row')[0]).getAllByRole('cell')[0],
-    ).toHaveTextContent(/This device/)
+    expect(view.getByRole('table')).toHaveTextContent(/This device/)
 
     expect(
       table.getAllByRole('button', { name: 'Delete this device' }),

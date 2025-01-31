@@ -47,7 +47,7 @@ returns
     end
     selector.merge!(without_merged_tickets) # do not show merged tickets in reports
 
-    result_es = SearchIndexBackend.selectors('Ticket', selector, { current_user: params[:current_user] }, aggs_interval)
+    result_es = SearchIndexBackend.selectors('Ticket', selector, { current_user: params_origin[:current_user] }, aggs_interval) # use params_origin because deep_dup removes current_user.id
     case params[:interval]
     when 'month'
       stop_interval = 12

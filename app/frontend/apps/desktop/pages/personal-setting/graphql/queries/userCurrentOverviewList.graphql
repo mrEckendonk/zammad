@@ -1,5 +1,5 @@
-query userCurrentOverviewList {
-  userCurrentOverviewList {
+query userCurrentOverviewList($ignoreUserConditions: Boolean!) {
+  userCurrentTicketOverviews(ignoreUserConditions: $ignoreUserConditions) {
     id
     name
     organizationShared

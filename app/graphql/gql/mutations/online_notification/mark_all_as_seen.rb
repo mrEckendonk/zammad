@@ -9,7 +9,7 @@ module Gql::Mutations
 
     def authorized?(online_notifications:)
       online_notifications.all? do |elem|
-        Pundit.authorize(context.current_user, elem, :update?)
+        pundit_authorized?(elem, :update?)
       end
     end
 

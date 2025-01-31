@@ -5,9 +5,9 @@ module Gql::Queries
 
     description 'Ticket overviews available in the system'
 
-    argument :ignore_user_conditions, Boolean, required: false, default_value: false, description: 'Include additional overviews by ignoring user conditions'
+    argument :ignore_user_conditions, Boolean, description: 'Include additional overviews by ignoring user conditions'
 
-    type Gql::Types::OverviewType.connection_type, null: false
+    type [Gql::Types::OverviewType], null: false
 
     def resolve(ignore_user_conditions:)
       # This effectively scopes the overviews by `:use?` permission.

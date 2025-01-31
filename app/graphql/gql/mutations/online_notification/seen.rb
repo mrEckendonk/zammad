@@ -10,7 +10,7 @@ module Gql::Mutations
 
     def authorized?(object_id:)
       relevant_notifications(object_id).all? do |notification|
-        Pundit.authorize(context.current_user, notification, :update?)
+        pundit_authorized?(notification, :update?)
       end
     end
 

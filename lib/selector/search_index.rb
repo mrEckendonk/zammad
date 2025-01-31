@@ -158,6 +158,7 @@ class Selector::SearchIndex < Selector::Base
 
       case data[:pre_condition]
       when 'not_set'
+        wildcard_or_term = 'term'
         data[:value] = if key_tmp.match?(%r{^(created_by|updated_by|owner|customer|user)_id})
                          1
                        end
@@ -175,6 +176,7 @@ class Selector::SearchIndex < Selector::Base
       when 'current_user.organization_id'
         raise "Use current_user.id in selector, but no current_user is set #{data.inspect}" if !current_user_id
 
+        wildcard_or_term = 'term'
         user = User.find_by(id: current_user_id)
         data[:value] = user.organization_id
       end
@@ -231,7 +233,7 @@ class Selector::SearchIndex < Selector::Base
     end
 
     # for pre condition not_set we want to check if values are defined for the object by exists
-    if data[:pre_condition] == 'not_set' && operators_is_isnot.include?(data[:operator]) && data[:value].nil?
+    if operators_is_isnot.include?(data[:operator]) && data[:value].nil?
       t['exists'] = {
         field: key_tmp,
       }

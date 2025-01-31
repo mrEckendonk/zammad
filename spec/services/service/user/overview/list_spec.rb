@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Service::User::Overview::List do
-  subject(:service) { described_class.new(user) }
+  subject(:service) { described_class.new(user, ignore_user_conditions: false) }
 
   let(:user) { create(:agent) }
 

@@ -42,6 +42,8 @@ returns:
       .where(ticket_state_types: { name: Ticket::StateType.names_in_category(category) })
   }
 
+  scope :active, -> { where(active: true) }
+
   def self.by_category_ids(category)
     by_category(category).pluck(:id)
   end

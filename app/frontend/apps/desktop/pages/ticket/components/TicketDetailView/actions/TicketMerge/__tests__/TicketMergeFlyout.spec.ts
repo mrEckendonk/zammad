@@ -37,16 +37,14 @@ describe('TicketMergeFlyout', () => {
     ).toBeInTheDocument()
 
     expect(
-      await wrapper.findByRole('heading', {
+      await wrapper.findByRole('table', {
         name: 'Recent Customer Tickets',
-        level: 3,
       }),
     ).toBeInTheDocument()
 
     expect(
-      wrapper.getByRole('heading', {
+      wrapper.getByRole('table', {
         name: 'Recently Viewed Tickets',
-        level: 3,
       }),
     ).toBeInTheDocument()
 
@@ -72,13 +70,14 @@ describe('TicketMergeFlyout', () => {
     })
 
     expect(
-      await wrapper.findByRole('heading', {
+      await wrapper.findByRole('table', {
         name: 'Recent Customer Tickets',
-        level: 3,
       }),
     ).toBeInTheDocument()
 
-    const rows = wrapper.getAllByLabelText('Select table row')
+    const rows = wrapper.getAllByRole('row', {
+      description: 'Select table row',
+    })
 
     await wrapper.events.click(rows[0])
 

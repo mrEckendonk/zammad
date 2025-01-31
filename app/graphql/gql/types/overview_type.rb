@@ -14,13 +14,14 @@ module Gql::Types
     # field :order, String, null: false
     field :order_by, String, null: false
     field :order_direction, Gql::Types::Enum::OrderDirectionType, null: false
-    # field :group_by, String
-    # field :group_direction, String
+    field :group_by, String
+    field :group_direction, Gql::Types::Enum::OrderDirectionType
     field :organization_shared, Boolean, null: true
     field :out_of_office, Boolean, null: true
     # field :view, String, null: false
     field :active, Boolean, null: false
 
+    field :view_columns_raw, [String, { null: false }], null: false, description: 'Columns to be shown on screen'
     field :view_columns, [Gql::Types::KeyValueType, { null: false }], null: false, description: 'Columns to be shown on screen, with assigned label values'
     field :order_columns, [Gql::Types::KeyValueType, { null: false }], null: false, description: 'Columns that may be used as order_by of overview queries, with assigned label values'
     field :ticket_count, Integer, null: false, description: 'Count of tickets the authenticated user may see in this overview'
@@ -33,9 +34,12 @@ module Gql::Types
       object.order['direction']
     end
 
+    def view_columns_raw
+      flatten_columns(object.view['s'])
+    end
+
     def view_columns
-      columns = flatten_columns(object.view['s'])
-      columns.map do |attribute|
+      view_columns_raw.map do |attribute|
         { key: attribute, value: label_for_attribute(attribute) }
       end
     end

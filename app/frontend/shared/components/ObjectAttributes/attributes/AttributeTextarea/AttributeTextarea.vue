@@ -12,5 +12,6 @@ defineProps<ObjectAttributeProps<ObjectAttributeTextarea, string>>()
 </script>
 
 <template>
-  <div v-html="textToHtml(value)" />
+  <div v-if="mode === 'view'" v-html="textToHtml(value)" />
+  <template v-else>{{ value }}</template>
 </template>

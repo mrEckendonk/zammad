@@ -128,6 +128,6 @@ defineExpose({
     ]"
     @click="onClick"
   >
-    <slot></slot>
+    <slot :is-active="isExactActive" :is-exact-active="isExactActive" />
   </a>
 </template>

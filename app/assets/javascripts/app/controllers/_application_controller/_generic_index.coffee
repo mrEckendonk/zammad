@@ -84,8 +84,8 @@ class App.ControllerGenericIndex extends App.Controller
       @title @pageData.objects, true
 
     if @pageData.pagerAjax
-      sortBy  = @table?.customOrderBy || @table?.orderBy || @defaultSortBy  || 'id'
-      orderBy = @table?.customOrderDirection || @table?.orderDirection || @defaultOrder || 'ASC'
+      sortBy  = @table?.customOrderBy || @table?.lastOrderBy || @defaultSortBy  || 'id'
+      orderBy = @table?.customOrderDirection || @table?.lastOrderDirection || @defaultOrder || 'ASC'
 
       fallbackSortBy  = sortBy
       fallbackOrderBy = orderBy

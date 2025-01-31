@@ -13,14 +13,14 @@ module Ticket::Article::TriggersSubscriptions
   private
 
   def trigger_create_subscriptions
-    Gql::Subscriptions::TicketArticleUpdates.trigger_after_create(self)
+    Gql::Subscriptions::Ticket::ArticleUpdates.trigger_after_create(self)
   end
 
   def trigger_update_subscriptions
-    Gql::Subscriptions::TicketArticleUpdates.trigger_after_update(self)
+    Gql::Subscriptions::Ticket::ArticleUpdates.trigger_after_update(self)
   end
 
   def trigger_destroy_subscriptions
-    Gql::Subscriptions::TicketArticleUpdates.trigger_after_destroy(self)
+    Gql::Subscriptions::Ticket::ArticleUpdates.trigger_after_destroy(self)
   end
 end

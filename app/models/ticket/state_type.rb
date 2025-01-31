@@ -28,6 +28,7 @@ class Ticket::StateType < ApplicationModel
     viewable_customer_edit: %w[open closed],
     closed:                 %w[closed],
     merged:                 %w[merged],
+    archivable_into:        %w[new open closed],
   }.with_indifferent_access.freeze
 
   def self.names_in_category(category)

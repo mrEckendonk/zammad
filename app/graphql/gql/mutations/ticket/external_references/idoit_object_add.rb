@@ -15,7 +15,7 @@ module Gql::Mutations
 
     def authorized?(idoit_object_ids:, ticket: nil)
       if ticket.present?
-        Pundit.authorize(context.current_user, ticket, :agent_update_access?)
+        pundit_authorized?(ticket, :agent_update_access?)
       else
         context.current_user.permissions?('ticket.agent')
       end

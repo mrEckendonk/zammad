@@ -107,6 +107,7 @@ gem 'omniauth-gitlab'
 gem 'omniauth-google-oauth2'
 gem 'omniauth-linkedin-oauth2'
 gem 'omniauth-microsoft-office365'
+gem 'omniauth_openid_connect'
 gem 'omniauth-saml'
 gem 'omniauth-twitter'
 gem 'omniauth-weibo-oauth2', git: 'https://github.com/zammad-deps/omniauth-weibo-oauth2', branch: 'unpin-dependencies'
@@ -128,7 +129,6 @@ gem 'mime-types'
 gem 'rchardet', '>= 1.8.0'
 
 # networking libraries were removed from stdlib in ruby 3.1..
-gem 'net-ftp',  require: false
 gem 'net-http', require: false
 gem 'net-imap', require: false
 gem 'net-pop',  require: false
@@ -200,6 +200,9 @@ gem 'macaddr'
 
 # watch file changes (also relevant for graphql generation in context of CDs)
 gem 'listen'
+
+# language detection
+gem 'cld'
 
 # Gems used only for develop/test and not required
 # in production environments by default.

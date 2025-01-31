@@ -6,25 +6,27 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 import { useTicketOverviewsQuery } from '#shared/entities/ticket/graphql/queries/ticket/overviews.api.ts'
+import { TicketOverviewUpdatesDocument } from '#shared/entities/ticket/graphql/subscriptions/ticketOverviewUpdates.api.ts'
 import type {
+  Overview,
   TicketOverviewsQuery,
   TicketOverviewUpdatesSubscription,
   TicketOverviewUpdatesSubscriptionVariables,
 } from '#shared/graphql/types.ts'
 import { QueryHandler } from '#shared/server/apollo/handler/index.ts'
-import type { ConfidentTake } from '#shared/types/utils.ts'
 
-import { TicketOverviewUpdatesDocument } from '../graphql/subscriptions/ticketOverviewUpdates.api.ts'
 import { getTicketOverviewStorage } from '../helpers/ticketOverviewStorage.ts'
 
-export type TicketOverview = ConfidentTake<
-  TicketOverviewsQuery,
-  'ticketOverviews.edges.node'
+export type TicketOverview = Pick<
+  Overview,
+  'id' | 'name' | 'organizationShared' | 'outOfOffice'
 >
 
 export const useTicketOverviewsStore = defineStore('ticketOverviews', () => {
   const ticketOverviewHandler = new QueryHandler(
-    useTicketOverviewsQuery({ withTicketCount: true }),
+    useTicketOverviewsQuery({
+      withTicketCount: true,
+    }),
   )
 
   // Updates the overviews when overviews got added, updated and/or deleted.
@@ -35,6 +37,7 @@ export const useTicketOverviewsStore = defineStore('ticketOverviews', () => {
     document: TicketOverviewUpdatesDocument,
     variables: {
       withTicketCount: true,
+      ignoreUserConditions: false,
     },
     updateQuery(_, { subscriptionData }) {
       const ticketOverviews =
@@ -54,11 +57,9 @@ export const useTicketOverviewsStore = defineStore('ticketOverviews', () => {
   const overviewsLoading = ticketOverviewHandler.loading()
 
   const overviews = computed(() => {
-    if (!overviewsRaw.value?.ticketOverviews.edges) return []
+    if (!overviewsRaw.value?.ticketOverviews) return []
 
-    return overviewsRaw.value.ticketOverviews.edges
-      .filter((overview) => overview?.node?.id)
-      .map((edge) => edge.node)
+    return overviewsRaw.value.ticketOverviews.filter((overview) => overview?.id)
   })
 
   const overviewsByKey = computed(() => keyBy(overviews.value, 'id'))

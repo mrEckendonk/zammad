@@ -12,10 +12,11 @@ class GraphqlChannel < ApplicationCable::Channel
 
     # context must be kept in sync with GraphqlController!
     context = {
-      sid:          sid,
-      current_user: current_user,
+      sid:             sid,
+      current_user:    current_user,
+      current_user_id: current_user&.id,
       # :channel is required for ActionCableSubscriptions and MUST NOT be used otherwise.
-      channel:      self,
+      channel:         self,
     }
 
     result = UserInfo.with_user_id(current_user&.id) do

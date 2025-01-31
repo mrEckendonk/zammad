@@ -8,35 +8,36 @@ RSpec.describe Gql::Queries::Ticket::Overviews, type: :graphql do
     let(:agent)     { create(:agent) }
     let(:query)     do
       <<~QUERY
-        query ticketOverviews($ignoreUserConditions: Boolean = false, $withTicketCount: Boolean!) {
+        query ticketOverviews($ignoreUserConditions: Boolean!, $withTicketCount: Boolean!) {
           ticketOverviews(ignoreUserConditions: $ignoreUserConditions) {
-            edges {
-              node {
-                id
-                name
-                link
-                prio
-                orderBy
-                orderDirection
-                organizationShared
-                outOfOffice
-                viewColumns {
-                  key
-                  value
-                }
-                orderColumns {
-                  key
-                  value
-                }
-                active
-                ticketCount @include(if: $withTicketCount)
-              }
+            id
+            name
+            link
+            prio
+            orderBy
+            orderDirection
+            organizationShared
+            outOfOffice
+            groupBy
+            groupDirection
+            viewColumnsRaw
+            viewColumns {
+              key
+              value
             }
+            orderColumns {
+              key
+              value
+            }
+            active
+            ticketCount @include(if: $withTicketCount)
           }
         }
       QUERY
     end
-    let(:variables) { { withTicketCount: false } }
+    let(:ignore_user_conditions) { false }
+    let(:with_ticket_count)    { false }
+    let(:variables)            { { withTicketCount: with_ticket_count, ignoreUserConditions: ignore_user_conditions } }
 
     before do
       gql.execute(query, variables: variables)
@@ -44,18 +45,19 @@ RSpec.describe Gql::Queries::Ticket::Overviews, type: :graphql do
 
     context 'with an agent', authenticated_as: :agent do
       it 'has agent overview' do
-        expect(gql.result.nodes.first).to include('name' => 'My Assigned Tickets', 'link' => 'my_assigned', 'prio' => 1000, 'active' => true,)
+        expect(gql.result.data.first).to include('name' => 'My Assigned Tickets', 'link' => 'my_assigned', 'prio' => 1000, 'active' => true, 'groupBy' => nil, 'groupDirection' => nil)
       end
 
       it 'has view and order columns' do
-        expect(gql.result.nodes.first).to include(
-          'viewColumns'  => include({ 'key' => 'title', 'value' => 'Title' }),
-          'orderColumns' => include({ 'key' => 'created_at', 'value' => 'Created at' }),
+        expect(gql.result.data.first).to include(
+          'viewColumnsRaw' => include('title'),
+          'viewColumns'    => include({ 'key' => 'title', 'value' => 'Title' }),
+          'orderColumns'   => include({ 'key' => 'created_at', 'value' => 'Created at' }),
         )
       end
 
       it 'has shared organization and out of office fields' do
-        expect(gql.result.nodes.first).to include(
+        expect(gql.result.data.first).to include(
           'organizationShared' => false,
           'outOfOffice'        => false,
         )
@@ -74,13 +76,13 @@ RSpec.describe Gql::Queries::Ticket::Overviews, type: :graphql do
             overview.save!
           end
         end
-        let(:variables) do
+        let(:with_ticket_count) do
           overview
-          { withTicketCount: false }
+          false
         end
 
         it 'lists view columns correctly' do
-          expect(gql.result.nodes.first).to include(
+          expect(gql.result.data.first).to include(
             'viewColumns' => [ { 'key' => oa.name, 'value' => oa.display }, { 'key' => 'unknown_field', 'value' => nil }],
           )
         end
@@ -88,29 +90,29 @@ RSpec.describe Gql::Queries::Ticket::Overviews, type: :graphql do
 
       context 'when not ignoring user conditions' do
         it 'does not include replacement tickets overview' do
-          expect(gql.result.nodes).not_to include(include('name' => 'My Replacement Tickets', 'outOfOffice' => true))
+          expect(gql.result.data).not_to include(include('name' => 'My Replacement Tickets', 'outOfOffice' => true))
         end
       end
 
       context 'when ignoring user conditions' do
-        let(:variables) { { ignoreUserConditions: true, withTicketCount: false } }
+        let(:ignore_user_conditions) { true }
 
         it 'includes replacement tickets overview' do
-          expect(gql.result.nodes).to include(include('name' => 'My Replacement Tickets', 'outOfOffice' => true))
+          expect(gql.result.data).to include(include('name' => 'My Replacement Tickets', 'outOfOffice' => true))
         end
       end
 
       context 'without ticket count' do
         it 'does not include ticketCount field' do
-          expect(gql.result.nodes.first).not_to have_key('ticketCount')
+          expect(gql.result.data.first).not_to have_key('ticketCount')
         end
       end
 
       context 'with ticket count' do
-        let(:variables) { { withTicketCount: true } }
+        let(:with_ticket_count) { true }
 
         it 'includes ticketCount field' do
-          expect(gql.result.nodes.first['ticketCount']).to eq(0)
+          expect(gql.result.data.first['ticketCount']).to eq(0)
         end
       end
     end
@@ -119,20 +121,20 @@ RSpec.describe Gql::Queries::Ticket::Overviews, type: :graphql do
       let(:customer) { create(:customer) }
 
       it 'has customer overview' do
-        expect(gql.result.nodes.first).to include('name' => 'My Tickets', 'link' => 'my_tickets', 'prio' => 1100, 'active' => true,)
+        expect(gql.result.data.first).to include('name' => 'My Tickets', 'link' => 'my_tickets', 'prio' => 1100, 'active' => true,)
       end
 
       context 'when not ignoring user conditions' do
         it 'does not include shared organization overview' do
-          expect(gql.result.nodes).not_to include(include('name' => 'My Organization Tickets', 'organizationShared' => true))
+          expect(gql.result.data).not_to include(include('name' => 'My Organization Tickets', 'organizationShared' => true))
         end
       end
 
       context 'when ignoring user conditions' do
-        let(:variables) { { ignoreUserConditions: true, withTicketCount: false } }
+        let(:ignore_user_conditions) { true }
 
         it 'includes replacement tickets overview' do
-          expect(gql.result.nodes).to include(include('name' => 'My Organization Tickets', 'organizationShared' => true))
+          expect(gql.result.data).to include(include('name' => 'My Organization Tickets', 'organizationShared' => true))
         end
       end
     end

@@ -222,6 +222,9 @@ const emailConfigurationCheck = computed(() => {
         ref="formEmailInboundMessages"
         data-test-id="channel-email-inbound-messages"
         form-class="mb-2.5"
+        :form-updater-id="
+          EnumFormUpdaterId.FormUpdaterUpdaterGuidedSetupEmailArchive
+        "
         :schema="emailInboundMessageSchema"
         :schema-data="emailInboundMessageSchemaData"
         @submit="

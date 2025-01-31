@@ -23,7 +23,7 @@ class ImportZendeskController < ApplicationController
       'Connection refused'                                        => __('The connection was refused.'),
     }
 
-    response = UserAgent.request(URI.join(params[:url], '/api/v2/users/me').to_s, verify_ssl: true)
+    response = UserAgent.get(URI.join(params[:url], '/api/v2/users/me').to_s, {}, verify_ssl: true)
 
     if !response.success?
       message_human = ''

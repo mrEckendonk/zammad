@@ -4,7 +4,7 @@ import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
 import '@testing-library/jest-dom/vitest'
 import { toBeDisabled } from '@testing-library/jest-dom/matchers'
 import { configure } from '@testing-library/vue'
-import { expect } from 'vitest'
+import { expect, vi } from 'vitest'
 import * as matchers from 'vitest-axe/matchers'
 import 'vitest-axe/extend-expect'
 
@@ -36,6 +36,15 @@ Object.defineProperty(window, 'fetch', {
   },
   writable: true,
   configurable: true,
+})
+
+Object.defineProperty(globalThis, 'Notification', {
+  value: {
+    permission: undefined,
+    requestPermission: async () => Promise.resolve('granted'),
+    name: 'Notification',
+  },
+  writable: true,
 })
 
 class DOMRectList {

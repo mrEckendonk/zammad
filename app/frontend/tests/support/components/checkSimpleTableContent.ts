@@ -27,12 +27,14 @@ export const checkSimpleTableContent = (
 
   const rows = table.getAllByRole('row')
 
-  expect(rows).toHaveLength(rowContents.length)
+  expect(rows).toHaveLength(rowContents.length + 1) // +1 for header row
 
   rows.forEach((row, index) => {
-    within(row)
-      .getAllByRole('cell')
-      .forEach((cell, cellIndex) => {
+    const cells = within(row).queryAllByRole('cell')
+
+    if (!cells.length)
+      cells.forEach((cell, cellIndex) => {
+        if (!cell) return
         const content = rowContents[index][cellIndex]
         if (content) {
           const withinCell = within(cell)

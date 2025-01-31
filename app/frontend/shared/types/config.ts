@@ -10,6 +10,7 @@ export interface ConfigList {
   auth_google_oauth2?: boolean | null
   auth_linkedin?: boolean | null
   auth_microsoft_office365?: boolean | null
+  auth_openid_connect?: boolean | null
   auth_saml?: boolean | null
   auth_sso?: boolean | null
   auth_twitter?: boolean | null

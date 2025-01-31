@@ -5,7 +5,7 @@ import { computed } from 'vue'
 
 import { EnumTicketStateColorCode } from '#shared/graphql/types.ts'
 
-import CommonTicketStateIndicatorIcon from '../CommonTicketStateIndicatorIcon/CommonTicketStateIndicatorIcon.vue'
+import CommonTicketStateIndicatorIcon from './CommonTicketStateIndicatorIcon.vue'
 
 export interface Props {
   colorCode: EnumTicketStateColorCode

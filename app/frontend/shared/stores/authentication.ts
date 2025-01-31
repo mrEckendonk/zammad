@@ -59,7 +59,15 @@ export const useAuthenticationStore = defineStore(
     }
 
     const logout = async (): Promise<void> => {
-      const logoutMutation = new MutationHandler(useLogoutMutation())
+      const logoutMutation = new MutationHandler(
+        useLogoutMutation({
+          context: {
+            batch: {
+              active: false,
+            },
+          },
+        }),
+      )
 
       const result = await logoutMutation.send()
       if (result?.logout?.success) {
@@ -122,6 +130,9 @@ export const useAuthenticationStore = defineStore(
           context: {
             headers: {
               'X-Browser-Fingerprint': fingerprint.value,
+            },
+            batch: {
+              active: false,
             },
           },
         }),

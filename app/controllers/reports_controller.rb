@@ -11,9 +11,18 @@ class ReportsController < ApplicationController
       }
       return
     end
+
+    profiles = Report::Profile.list
+    if profiles.blank?
+      render json: {
+        error: __('There are currently no report profiles configured.'),
+      }
+      return
+    end
+
     render json: {
       config:   Report.config,
-      profiles: Report::Profile.list,
+      profiles: profiles,
     }
   end
 

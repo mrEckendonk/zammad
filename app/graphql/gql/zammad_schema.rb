@@ -65,7 +65,7 @@ class Gql::ZammadSchema < GraphQL::Schema
   #   This is only needed for objects where no validation takes place through their GraphQL type.
   def self.authorized_object_from_id(id, type:, user:, query: :show?)
     verified_object_from_id(id, type: type).tap do |object|
-      Pundit.authorize user, object, query
+      Pundit.authorize(user, object, query)
     rescue Pundit::NotAuthorizedError => e
       # Map Pundit errors since we are not in a GraphQL built-in authorization context here.
       raise Exceptions::Forbidden, e.message

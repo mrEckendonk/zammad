@@ -52,12 +52,9 @@ class EmailHelper
           next if result_outbound[:result] != 'ok'
 
           return {
-            result:                       'ok',
-            content_messages:             result_inbound[:content_messages],
-            archive_possible:             result_inbound[:archive_possible],
-            archive_possible_is_fallback: result_inbound[:archive_possible_is_fallback],
-            archive_week_range:           result_inbound[:archive_week_range],
-            setting:                      settings,
+            result:           'ok',
+            content_messages: result_inbound[:content_messages],
+            setting:          settings,
           }
         end
       end
@@ -89,12 +86,9 @@ class EmailHelper
 
         next if result_inbound[:result] != 'ok'
 
-        success                     = true
-        result[:setting][:inbound]  = config
-        result[:content_messages]   = result_inbound[:content_messages]
-        result[:archive_possible]   = result_inbound[:archive_possible]
-        result[:archive_possible_is_fallback] = result_inbound[:archive_possible_is_fallback]
-        result[:archive_week_range] = result_inbound[:archive_week_range]
+        success                    = true
+        result[:setting][:inbound] = config
+        result[:content_messages]  = result_inbound[:content_messages]
 
         break
       end
@@ -160,7 +154,7 @@ class EmailHelper
       begin
         driver_class    = "Channel::Driver::#{adapter.to_classname}".constantize
         driver_instance = driver_class.new
-        result_inbound  = driver_instance.check(params[:options])
+        result_inbound  = driver_instance.check_configuration(params[:options])
       rescue => e
         Rails.logger.debug { e }
 

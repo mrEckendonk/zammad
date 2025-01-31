@@ -48,7 +48,10 @@ RSpec.describe 'Desktop > Personal Setting > Profile', app: :desktop_view, authe
 
     it 'user can change overview order' do
       click_on 'Profile settings'
-      click_on 'Overviews'
+
+      within '#personal-settings-sidebar' do
+        click_on 'Overviews'
+      end
 
       expect(page).to have_text("Test Overview\nMy Assigned Tickets")
 

@@ -1876,7 +1876,7 @@ RSpec.describe Ticket, type: :model do
       end
 
       it 'verify count of attributes' do
-        expect(ticket.send(:search_index_article_attributes, ticket_article).count).to eq 20
+        expect(ticket.send(:search_index_article_attributes, ticket_article).count).to eq 21
       end
 
       it 'verify from' do

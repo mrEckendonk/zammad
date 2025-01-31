@@ -23,7 +23,7 @@ class MicrosoftGraph
   end
 
   def list_messages(unread_only: false, per_page: 1000, follow_pagination: true, folder_id: nil, select: 'id')
-    path = 'messages/?$orderby=receivedDateTime ASC'
+    path = 'messages/?$count=true&$orderby=receivedDateTime ASC'
 
     path += "&$select=#{select}"
     path += "&top=#{per_page}"
@@ -68,6 +68,7 @@ class MicrosoftGraph
            end
 
     make_paginated_request("#{path}?$expand=childFolders($top=9999)&$top=9999")
+      .fetch(:items, [])
       .map do |elem|
         {
           id:           elem[:id],
@@ -147,7 +148,9 @@ class MicrosoftGraph
   def make_paginated_request(path, follow_pagination: true, **)
     response = make_request(path, **)
 
-    return response.fetch(:value) if !follow_pagination
+    total_count = response[:'@odata.count']
+
+    return { total_count:, items: response.fetch(:value) } if !follow_pagination
 
     received = [response]
 
@@ -165,7 +168,9 @@ class MicrosoftGraph
       end
     end
 
-    received.flat_map { |elem| elem.fetch(:value) }
+    items = received.flat_map { |elem| elem.fetch(:value) }
+
+    { total_count:, items: }
   end
 
   def headers_to_hash(input)

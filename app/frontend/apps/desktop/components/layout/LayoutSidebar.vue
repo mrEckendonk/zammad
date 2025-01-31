@@ -36,10 +36,12 @@ interface Props {
     collapseButton?: string
   }
   rememberCollapse?: boolean
+  backgroundVariant?: 'primary' | 'secondary'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   position: SidebarPosition.Start,
+  backgroundVariant: 'primary',
   hideButtonWhenCollapsed: false,
 })
 
@@ -63,6 +65,16 @@ const { toggleCollapse, isCollapsed } = useCollapseHandler(
   emit,
   collapseOptions,
 )
+
+const backgroundVariantClass = computed(() => {
+  switch (props.backgroundVariant) {
+    case 'secondary':
+      return 'bg-blue-50 dark:bg-gray-800'
+    case 'primary':
+    default:
+      return '-:bg-neutral-950'
+  }
+})
 
 // a11y keyboard navigation // TS: Does not infer type for some reason?
 const resizeLineInstance =
@@ -115,11 +127,14 @@ const collapseButtonClass = computed(() => {
 <template>
   <aside
     :id="id"
-    class="-:bg-neutral-950 -:max-h-screen relative flex flex-col overflow-y-clip border-neutral-100 dark:border-gray-900"
-    :class="{
-      'py-3': isCollapsed && !noPadding,
-      'border-s': position === SidebarPosition.End,
-    }"
+    class="-:max-h-screen relative flex flex-col overflow-y-clip border-neutral-100 dark:border-gray-900"
+    :class="[
+      {
+        'py-3': isCollapsed && !noPadding,
+        'border-s': position === SidebarPosition.End,
+      },
+      backgroundVariantClass,
+    ]"
   >
     <CommonButton
       v-if="iconCollapsed && isCollapsed"
@@ -137,6 +152,10 @@ const collapseButtonClass = computed(() => {
         'px-3 py-2.5': !isCollapsed && !noPadding,
         'overflow-y-hidden': noScroll,
         'overflow-y-auto': !noScroll,
+        'border-e border-neutral-100 dark:border-gray-900':
+          backgroundVariant === 'secondary' && SidebarPosition.Start,
+        'border-s border-neutral-100 dark:border-gray-900':
+          backgroundVariant === 'secondary' && SidebarPosition.End,
       }"
     >
       <slot v-bind="{ isCollapsed, toggleCollapse }" />

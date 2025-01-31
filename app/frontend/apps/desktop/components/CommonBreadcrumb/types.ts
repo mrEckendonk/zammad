@@ -7,4 +7,5 @@ export interface BreadcrumbItem {
   noOptionLabelTranslation?: boolean
   route?: string
   icon?: string
+  count?: number
 }

@@ -6,6 +6,10 @@ class Link < ApplicationModel
   belongs_to :link_type,   class_name: 'Link::Type', optional: true
   belongs_to :link_object, class_name: 'Link::Object', optional: true
 
+  # Using custom validator instead of validates_uniqueness_of
+  # To have a custom attribute-less error message
+  validates_with Validations::LinkUniquenessValidator
+
   after_destroy :touch_link_references
 
   @map = {

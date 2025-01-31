@@ -200,7 +200,7 @@ class ChannelAccountOverview extends App.ControllerSubContent
       container: @el.closest('.content')
       item: item
       callback: @load
-      set_active: set_active,
+      set_active: set_active
     )
 
   rollbackMigration: (e) =>
@@ -305,10 +305,7 @@ class ChannelInboundEdit extends App.ControllerModal
     # disable form
     @formDisable(e)
 
-    if @set_active
-      params['active'] = true
-
-    # update
+    # probe
     @ajax(
       id:   'channel_email_inbound'
       type: 'POST'
@@ -316,16 +313,47 @@ class ChannelInboundEdit extends App.ControllerModal
       data: JSON.stringify(params)
       processData: true
       success: (data, status, xhr) =>
+        if data.content_messages or not @set_active
+          new App.ChannelInboundEmailArchive(
+            container: @el.closest('.content')
+            item: @item
+            set_active: @set_active
+            content_messages: data.content_messages
+            inboundParams: params
+            callback: @verify
+          )
+          @close()
+          return
+
+        @verify(params)
+
+      error: (xhr) =>
+        data = JSON.parse(xhr.responseText)
+        @stopLoading()
+        @formEnable(e)
+        @el.find('.alert--danger').removeClass('hide').text(data.error_human || data.error || __('The changes could not be saved.'))
+    )
+
+  verify: (params = {}) =>
+    @startLoading()
+
+    if @set_active
+      params['active'] = true
+
+    # update
+    @ajax(
+      id:   'channel_email_verify'
+      type: 'POST'
+      url:  "#{@apiPath}/channels_google_verify/#{@item.id}"
+      data: JSON.stringify(params)
+      processData: true
+      success: (data, status, xhr) =>
         @callback(true)
         @close()
       error: (xhr) =>
+        data = JSON.parse(xhr.responseText)
         @stopLoading()
-        @formEnable(e)
-        details = xhr.responseJSON || {}
-        @notify
-          type:    'error'
-          msg:     details.error_human || details.error || __('The changes could not be saved.')
-          timeout: 6000
+        @el.find('.alert--danger').removeClass('hide').text(data.error_human || data.error || __('The changes could not be saved.'))
     )
 
 class ChannelGroupEdit extends App.ControllerModal

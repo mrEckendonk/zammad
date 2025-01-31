@@ -39,11 +39,20 @@ export const useArticleDataHandler = (
   )
 
   const articlesQuery = new QueryHandler(
-    useTicketArticlesQuery(() => ({
-      ticketId: ticketId.value,
-      pageSize: options.pageSize || 20,
-      firstArticlesCount: firstArticlesCount.value,
-    })),
+    useTicketArticlesQuery(
+      () => ({
+        ticketId: ticketId.value,
+        pageSize: options.pageSize || 20,
+        firstArticlesCount: firstArticlesCount.value,
+      }),
+      {
+        context: {
+          batch: {
+            active: false,
+          },
+        },
+      },
+    ),
   )
 
   const articleResult = articlesQuery.result()

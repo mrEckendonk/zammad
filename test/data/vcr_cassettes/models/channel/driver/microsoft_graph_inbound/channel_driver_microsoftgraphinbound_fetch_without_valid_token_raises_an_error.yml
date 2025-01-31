@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://graph.microsoft.com/v1.0/users/<MICROSOFT365_USER>/messages/?$filter=(parentFolderId%20eq%20%27inbox%27)&$orderby=receivedDateTime%20ASC&$select=id&top=1000
+    uri: https://graph.microsoft.com/v1.0/users/<MICROSOFT365_USER>/messages/?$count=true&$filter=(parentFolderId%20eq%20%27inbox%27)&$orderby=receivedDateTime%20ASC&$select=id&top=1000
     body:
       encoding: US-ASCII
       string: ''
@@ -31,23 +31,23 @@ http_interactions:
       Strict-Transport-Security:
       - max-age=31536000
       Request-Id:
-      - 6ca77fc2-5cc2-40f4-ab4a-d6c8716da4c4
+      - ece764d8-d320-4724-8913-d0fab5c46287
       Client-Request-Id:
-      - 6ca77fc2-5cc2-40f4-ab4a-d6c8716da4c4
+      - ece764d8-d320-4724-8913-d0fab5c46287
       X-Ms-Ags-Diagnostic:
-      - '{"ServerInfo":{"DataCenter":"Germany West Central","Slice":"E","Ring":"4","ScaleUnit":"001","RoleInstance":"FR2PEPF00000400"}}'
+      - '{"ServerInfo":{"DataCenter":"Germany West Central","Slice":"E","Ring":"4","ScaleUnit":"004","RoleInstance":"FR2PEPF00000555"}}'
       Www-Authenticate:
       - Bearer realm="", authorization_uri="https://login.microsoftonline.com/common/oauth2/authorize",
         client_id="00000003-0000-0000-c000-000000000000"
       - PoP realm="", authorization_uri="https://login.microsoftonline.com/common/oauth2/authorize",
-        client_id="00000003-0000-0000-c000-000000000000", nonce="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkI5QzU5QzBFOEUyQUNGQ0NDMzI5QTM2NEVDMUY3NjQ1ODZFNUEyRDMifQ.eyJ0cyI6MTczNjI3ODAyMH0.IWmbbju4M5POnsZIiLfFjL614g_yUP-u-t9J4ZkbodxSy5FvHIS33bFVPiYUt7k2rGMXIXR-9hVgb4lquqqM0Ft8SFijG_p0MnVUEeS7VXNdwe2xId0qHgr3dtmCdD8uF4_NbbO54HJ58h4-0CtLZVx61iwwS_zyN2qg5lDMUnPAnU3QG2r_9-zXRw_D7wovFJgg4TIrjkY5MxZmbR4D6CmJ58KFoqyfKzGBvS6qtWYjEraQTOhKr53BgafufRaXZs_c28CnEgHvmbexrPBLwonkEtWf6cZl1yN4m9cvC_U27IGHBm4_6rQv40FB9f8IWensvBO-RNJjRLGMM6s_sw"
+        client_id="00000003-0000-0000-c000-000000000000", nonce="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkI5QzU5QzBFOEUyQUNGQ0NDMzI5QTM2NEVDMUY3NjQ1ODZFNUEyRDMifQ.eyJ0cyI6MTczNjk1NjUwMH0.VGz3kn2SCHLUkOda0FKJU5XWuFWi_qoX_SLqkMWLtCa1w7ZUSMo2t62RiRoGYS6y8WJu6ltxfn2hmlCndKCGjNcCkPoOV75LqAcUJe31B0fiRe4ZRi2iiagtnqYF50wZ8D5FnS9V-fT_G364OOqc6Oqqw0AoPtktFWc5cl_j5zuRcG8aMwNF2oJxzfVU5iGZhNhCgY9pgTWmp3KWwAhRYW-v3V6hawTJ3r_5lT5j9ncBEwCyfEIOAIwf9CcZinva0yPqKvt3heI3vkOpnYKL_Nahoz7P0FjEvbD3oEkNGrKXtU6HvEkkalpP3IpNgjco5OegT8H1ARd2RFLESP6EeQ"
       Date:
-      - Tue, 07 Jan 2025 19:27:42 GMT
+      - Wed, 15 Jan 2025 15:55:33 GMT
     body:
       encoding: ASCII-8BIT
       string: '{"error":{"code":"InvalidAuthenticationToken","message":"IDX14100:
         JWT is not well formed, there are no dots (.).\nThe token needs to be in JWS
         or JWE Compact Serialization Format. (JWS): ''EncodedHeader.EncodedPayload.EncodedSignature''.
-        (JWE): ''EncodedProtectedHeader.EncodedEncryptedKey.EncodedInitializationVector.EncodedCiphertext.EncodedAuthenticationTag''.","innerError":{"date":"2025-01-07T19:27:42","request-id":"6ca77fc2-5cc2-40f4-ab4a-d6c8716da4c4","client-request-id":"6ca77fc2-5cc2-40f4-ab4a-d6c8716da4c4"}}}'
-  recorded_at: Tue, 07 Jan 2025 19:27:42 GMT
+        (JWE): ''EncodedProtectedHeader.EncodedEncryptedKey.EncodedInitializationVector.EncodedCiphertext.EncodedAuthenticationTag''.","innerError":{"date":"2025-01-15T15:55:34","request-id":"ece764d8-d320-4724-8913-d0fab5c46287","client-request-id":"ece764d8-d320-4724-8913-d0fab5c46287"}}}'
+  recorded_at: Wed, 15 Jan 2025 15:55:34 GMT
 recorded_with: VCR 6.3.1

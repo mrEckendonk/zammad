@@ -1,5 +1,6 @@
 // Copyright (C) 2012-2025 Zammad Foundation, https://zammad-foundation.org/
 
+import { waitFor } from '@testing-library/vue'
 import { describe } from 'vitest'
 
 import { renderComponent } from '#tests/support/components/index.ts'
@@ -9,6 +10,7 @@ import { EnumSecurityStateType } from '#shared/graphql/types.ts'
 
 import { mockDetailViewSetup } from '#desktop/pages/ticket/components/TicketDetailView/__tests__/support/article-detail-view-mocks.ts'
 import ArticleMetaAddress from '#desktop/pages/ticket/components/TicketDetailView/ArticleMeta/ArticleMetaAddress.vue'
+import ArticleMetaDetectedLanguage from '#desktop/pages/ticket/components/TicketDetailView/ArticleMeta/ArticleMetaDetectedLanguage.vue'
 import ArticleMetaSecurity from '#desktop/pages/ticket/components/TicketDetailView/ArticleMeta/ArticleMetaSecurity.vue'
 import ArticleMetaWhatsappMessageStatus from '#desktop/pages/ticket/components/TicketDetailView/ArticleMeta/ArticleMetaWhatsappMessageStatus.vue'
 
@@ -56,6 +58,36 @@ describe('Article Meta', () => {
       })
 
       expect(wrapper.getByText('Foo Braun')).toBeInTheDocument()
+    })
+  })
+
+  describe('Detected Language', () => {
+    it('shows detected language name', async () => {
+      const wrapper = renderComponent(
+        {
+          setup() {
+            const { article } = mockDetailViewSetup({
+              article: {
+                articleType: 'email',
+                detectedLanguage: 'de',
+              },
+            })
+            return { article }
+          },
+          template: `
+          <div>
+            <ArticleMetaDetectedLanguage :context="{article}" />
+          </div>`,
+          components: { ArticleMetaDetectedLanguage },
+        },
+        {
+          router: true,
+        },
+      )
+
+      await waitFor(() => {
+        expect(wrapper.getByText('German')).toBeInTheDocument()
+      })
     })
   })
 

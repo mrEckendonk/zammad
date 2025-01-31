@@ -58,6 +58,7 @@ RSpec.describe Sequencer::Sequence::Import::Zendesk::User, db_strategy: :reset, 
             'custom_dropdown' => '2',
             'lieblingstier'   => 'Hundä',
             'test::example'   => '1',
+            'phone'           => '1234',
           }
         }.merge(merge_resource)
       )
@@ -87,6 +88,7 @@ RSpec.describe Sequencer::Sequence::Import::Zendesk::User, db_strategy: :reset, 
           'custom_dropdown' => 'custom_dropdown',
           'lieblingstier'   => 'lieblingstier',
           'test::example'   => 'test_example',
+          'phone'           => 'phone',
         }
       }
     end

@@ -83,5 +83,45 @@ FactoryBot.define do
         }
       end
     end
+
+    factory :microsoft365_credential do
+      name { 'microsoft365' }
+
+      transient do
+        client_id     { SecureRandom.uuid }
+        client_secret { SecureRandom.urlsafe_base64(40) }
+        client_tenant { SecureRandom.uuid }
+      end
+
+      credentials do
+        {
+          'client_id'     => client_id,
+          'client_secret' => client_secret,
+          'client_tenant' => client_tenant,
+          'controller'    => 'external_credentials',
+          'action'        => 'app_verify',
+          'provider'      => 'microsoft365',
+        }
+      end
+    end
+
+    factory :google_credential do
+      name { 'google' }
+
+      transient do
+        client_id     { SecureRandom.uuid }
+        client_secret { SecureRandom.urlsafe_base64(40) }
+      end
+
+      credentials do
+        {
+          'client_id'     => client_id,
+          'client_secret' => client_secret,
+          'controller'    => 'external_credentials',
+          'action'        => 'app_verify',
+          'provider'      => 'google',
+        }
+      end
+    end
   end
 end

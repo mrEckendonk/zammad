@@ -8,7 +8,7 @@ export interface Props {
   iconColor?: string
   prefixIcon?: string
   suffixIcon?: string
-  tag?: 'span' | 'p' | 'h2' | 'h3'
+  tag?: 'span' | 'p' | 'h2' | 'h3' | 'div'
 }
 
 const props = withDefaults(defineProps<Props>(), {

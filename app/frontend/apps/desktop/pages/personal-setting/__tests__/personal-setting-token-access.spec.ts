@@ -145,7 +145,7 @@ describe('personal settings for token access', () => {
 
     const table = within(view.getByRole('table'))
 
-    const deleteButton = within(table.getAllByRole('row')[0]).getByRole(
+    const deleteButton = within(table.getAllByRole('row')[1]).getByRole(
       'button',
       {
         name: 'Delete this access token',

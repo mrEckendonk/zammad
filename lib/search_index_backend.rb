@@ -836,7 +836,7 @@ helper method for making HTTP calls and raising error if response was not succes
       properties: {}
     }
 
-    store_columns = %w[preferences data]
+    store_columns = %w[preferences data condition condition_selected condition_saved perform options view order match timeplan]
 
     # for elasticsearch 6.x and later
     string_type = 'text'

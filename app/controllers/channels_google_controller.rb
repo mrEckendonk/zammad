@@ -69,22 +69,28 @@ class ChannelsGoogleController < ApplicationController
 
   def inbound
     channel = Channel.find_by(id: params[:id], area: 'Google::Account')
-    %w[folder keep_on_server].each do |key|
-      channel.options[:inbound][:options][key] = params[:options][key]
-    end
 
     channel.refresh_xoauth2!(force: true)
+
+    channel.options[:inbound] ||= {}
+    channel.options[:inbound][:options] ||= {}
+
+    %w[folder keep_on_server].each do |key|
+      next if params.dig(:options, key).nil?
+
+      channel.options[:inbound][:options][key] = params[:options][key]
+    end
 
     result = EmailHelper::Probe.inbound(channel.options[:inbound])
     raise Exceptions::UnprocessableEntity, (result[:message_human] || result[:message]) if result[:result] == 'invalid'
 
-    channel.status_in    = 'ok'
-    channel.status_out   = 'ok'
-    channel.last_log_in  = nil
-    channel.last_log_out = nil
-    if params.key?(:active)
-      channel.active = params[:active]
-    end
+    render json: result
+  end
+
+  def verify
+    channel = Channel.find_by(id: params[:id], area: 'Google::Account')
+
+    verify_prepare_channel(channel, params)
 
     channel.save!
 
@@ -99,4 +105,24 @@ class ChannelsGoogleController < ApplicationController
     render json: {}
   end
 
+  private
+
+  def verify_prepare_channel(channel, params)
+    channel.group_id = params[:group_id] if params[:group_id].present?
+    channel.active   = params[:active] if params.key?(:active)
+
+    channel.options[:inbound] ||= {}
+    channel.options[:inbound][:options] ||= {}
+
+    %w[folder keep_on_server archive archive_before archive_state_id].each do |key|
+      next if params.dig(:options, key).nil?
+
+      channel.options[:inbound][:options][key] = params[:options][key]
+    end
+
+    channel.status_in    = 'ok'
+    channel.status_out   = 'ok'
+    channel.last_log_in  = nil
+    channel.last_log_out = nil
+  end
 end

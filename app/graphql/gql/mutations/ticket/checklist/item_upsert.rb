@@ -12,9 +12,10 @@ module Gql::Mutations
 
     def authorized?(checklist:, input:, checklist_item: nil)
       if checklist_item
-        Pundit.authorize(context.current_user, checklist_item, :update?)
+        return pundit_authorized?(checklist_item, :update?)
       end
-      Pundit.authorize(context.current_user, Checklist::Item.new(checklist:), :create?)
+
+      pundit_authorized?(Checklist::Item.new(checklist:), :create?)
     end
 
     def resolve(checklist:, input:, checklist_item: nil)

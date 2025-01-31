@@ -3,9 +3,9 @@
 import { useTimeoutFn } from '@vueuse/shared'
 import { onMounted } from 'vue'
 
+import { useTicketOverviewTicketCountLazyQuery } from '#shared/entities/ticket/graphql/queries/ticket/overviewTicketCount.api.ts'
 import { QueryHandler } from '#shared/server/apollo/handler/index.ts'
 
-import { useTicketOverviewTicketCountLazyQuery } from '../graphql/queries/ticketOverviewTicketCount.api.ts'
 import { useTicketOverviewsStore } from '../stores/ticketOverviews.ts'
 
 const POLLING_INTERVAL = 60000
@@ -14,9 +14,14 @@ export const useTicketOverviews = () => {
   const overviews = useTicketOverviewsStore()
 
   const ticketOverviewTicketCountHandler = new QueryHandler(
-    useTicketOverviewTicketCountLazyQuery({
-      pollInterval: POLLING_INTERVAL,
-    }),
+    useTicketOverviewTicketCountLazyQuery(
+      {
+        ignoreUserConditions: false,
+      },
+      {
+        pollInterval: POLLING_INTERVAL,
+      },
+    ),
   )
 
   onMounted(() => {

@@ -26,7 +26,7 @@ defineOptions({
     <LayoutSidebar
       id="personal-settings-sidebar"
       name="personal-setting"
-      class="bg-blue-50 dark:bg-gray-800"
+      background-variant="secondary"
     >
       <PersonalSettingSidebar />
     </LayoutSidebar>

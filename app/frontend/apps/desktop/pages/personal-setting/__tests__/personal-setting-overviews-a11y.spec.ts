@@ -10,7 +10,7 @@ import { convertToGraphQLId } from '#shared/graphql/utils.ts'
 
 import { mockUserCurrentOverviewListQuery } from '../graphql/queries/userCurrentOverviewList.mocks.ts'
 
-const userCurrentOverviewList = [
+const userCurrentTicketOverviews = [
   {
     id: convertToGraphQLId('Overview', 1),
     name: 'Open Tickets',
@@ -35,7 +35,7 @@ describe('personal settings for token access', () => {
   })
 
   it('has no accessibility violations', async () => {
-    mockUserCurrentOverviewListQuery({ userCurrentOverviewList })
+    mockUserCurrentOverviewListQuery({ userCurrentTicketOverviews })
 
     const view = await visitView('/personal-setting/ticket-overviews')
 

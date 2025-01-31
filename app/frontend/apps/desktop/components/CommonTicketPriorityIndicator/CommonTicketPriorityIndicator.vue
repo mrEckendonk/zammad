@@ -6,6 +6,8 @@ import { computed } from 'vue'
 
 import { useApplicationStore } from '#shared/stores/application.ts'
 
+import CommonTicketPriorityIndicatorIcon from './CommonTicketPriorityIndicatorIcon.vue'
+
 import type { TicketPriority } from './types.ts'
 
 export interface Props {
@@ -21,20 +23,9 @@ const badgeVariant = computed(() => {
     case 'high-priority':
       return 'danger'
     case 'low-priority':
+      return 'tertiary'
+    default:
       return 'info'
-    default:
-      return 'warning'
-  }
-})
-
-const badgeIcon = computed(() => {
-  switch (props.priority?.uiColor) {
-    case 'high-priority':
-      return 'priority-high'
-    case 'low-priority':
-      return 'priority-low'
-    default:
-      return 'priority-normal'
   }
 })
 </script>
@@ -46,12 +37,9 @@ const badgeIcon = computed(() => {
     role="status"
     aria-live="polite"
   >
-    <CommonIcon
+    <CommonTicketPriorityIndicatorIcon
       v-if="config.ui_ticket_priority_icons"
-      size="xs"
-      :name="badgeIcon"
-      class="ltr:mr-1.5 rtl:ml-1.5"
-      decorative
+      :ui-color="priority?.uiColor"
     />
     {{ $t(priority?.name) }}
   </CommonBadge>

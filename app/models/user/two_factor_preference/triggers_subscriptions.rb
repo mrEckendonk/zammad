@@ -11,6 +11,6 @@ module User::TwoFactorPreference::TriggersSubscriptions
   private
 
   def trigger_subscriptions
-    Gql::Subscriptions::User::Current::TwoFactorUpdates.trigger(nil, arguments: { user_id: Gql::ZammadSchema.id_from_object(user) })
+    Gql::Subscriptions::User::Current::TwoFactorUpdates.trigger(nil, scope: user.id)
   end
 end

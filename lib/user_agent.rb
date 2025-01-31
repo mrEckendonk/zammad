@@ -2,7 +2,6 @@
 
 require 'net/http'
 require 'net/https'
-require 'net/ftp'
 
 class UserAgent
 
@@ -39,43 +38,6 @@ class UserAgent
   # @see .make_connection
   def self.delete(...)
     make_connection(:delete, ...)
-  end
-
-=begin
-
-perform get http/https/ftp calls
-
-  result = UserAgent.request('ftp://host/some_dir/some_file.bin')
-
-  result = UserAgent.request('http://host/some_dir/some_file.bin')
-
-  result = UserAgent.request('https://host/some_dir/some_file.bin')
-
-  # get request
-  result = UserAgent.request(
-    'http://host/some_dir/some_file?param1=123',
-    {
-      open_timeout: 4,
-      read_timeout: 10,
-    },
-  )
-
-returns
-
-  result # result object
-
-=end
-
-  def self.request(url, options = {})
-
-    uri = parse_uri(url)
-    case uri.scheme.downcase
-    when %r{ftp}
-      ftp(uri, options)
-    when %r{http|https}
-      get(url, {}, options)
-    end
-
   end
 
   def self.get_http(uri, options)
@@ -298,51 +260,6 @@ returns
     end
 
     raise "Unable to process http call '#{response.inspect}'"
-  end
-
-  def self.ftp(uri, options)
-    host       = uri.host
-    filename   = File.basename(uri.path)
-    remote_dir = File.dirname(uri.path)
-
-    temp_file = Tempfile.new("download-#{filename}")
-    temp_file.binmode
-
-    begin
-      Net::FTP.open(host) do |ftp|
-        ftp.passive = true
-        if options[:user] && options[:password]
-          ftp.login(options[:user], options[:password])
-        else
-          ftp.login
-        end
-        ftp.chdir(remote_dir) if remote_dir != '.'
-
-        begin
-          ftp.getbinaryfile(filename, temp_file)
-        rescue => e
-          return Result.new(
-            error:   e.inspect,
-            success: false,
-            code:    '550',
-          )
-        end
-      end
-    rescue => e
-      return Result.new(
-        error:   e.inspect,
-        success: false,
-        code:    0,
-      )
-    end
-
-    contents = temp_file.read
-    temp_file.close
-    Result.new(
-      body:    contents,
-      success: true,
-      code:    '200',
-    )
   end
 
   def self.handled_open_timeout(tries)

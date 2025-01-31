@@ -3,6 +3,7 @@ fragment overviewAttributes on Overview {
   name
   link
   prio
+  groupBy
   orderBy
   orderDirection
   viewColumns {
@@ -16,5 +17,6 @@ fragment overviewAttributes on Overview {
   organizationShared
   outOfOffice
   active
+  viewColumnsRaw
   ticketCount @include(if: $withTicketCount)
 }

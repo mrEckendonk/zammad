@@ -10,7 +10,7 @@ module Gql::Mutations
     field :success, Boolean, description: 'Was the mutation succcessful?'
 
     def authorized?(checklist:, checklist_item:)
-      Pundit.authorize(context.current_user, checklist_item, :destroy?)
+      pundit_authorized?(checklist_item, :destroy?)
     end
 
     def resolve(checklist:, checklist_item:)

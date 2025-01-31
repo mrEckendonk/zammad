@@ -4,15 +4,12 @@ import { ref } from 'vue'
 
 import { useOnlineNotificationsCountSubscription } from '#shared/entities/online-notification/graphql/subscriptions/onlineNotificationsCount.api.ts'
 import { SubscriptionHandler } from '#shared/server/apollo/handler/index.ts'
-import { useSessionStore } from '#shared/stores/session.ts'
 
 export const useOnlineNotificationCount = () => {
   const unseenCount = ref(0)
 
-  const { userId } = useSessionStore()
-
   const notificationsCountSubscription = new SubscriptionHandler(
-    useOnlineNotificationsCountSubscription({ userId }),
+    useOnlineNotificationsCountSubscription(),
   )
 
   notificationsCountSubscription.onResult((result) => {

@@ -15,7 +15,7 @@ RSpec.describe Channel::Driver::MicrosoftGraphInbound, :aggregate_failures, inte
   let(:client_access_token) { channel.options['inbound']['options']['password'] }
   let(:client)              { MicrosoftGraph.new(access_token: client_access_token, mailbox: ENV['MICROSOFT365_USER']) }
 
-  describe '.fetch' do
+  describe '#fetch' do
 
     context 'with valid token' do
       let(:mail_subject) { "CI test for #{described_class}" }
@@ -56,7 +56,8 @@ RSpec.describe Channel::Driver::MicrosoftGraphInbound, :aggregate_failures, inte
       context 'when fetching from the inbox' do
         before do
           # No special time-based treatment for existing verify messages. This might break VCR cassette handling.
-          allow_any_instance_of(described_class).to receive(:messages_is_too_old_verify?).and_return(true)
+          allow_any_instance_of(described_class::MessageValidator)
+            .to receive(:fresh_verify_message?).and_return(false)
         end
 
         include_examples 'fetches the test message'
@@ -74,6 +75,35 @@ RSpec.describe Channel::Driver::MicrosoftGraphInbound, :aggregate_failures, inte
 
         include_examples 'fetches the test message'
       end
+
+      context 'when fetching oversized emails' do
+        before do
+          client.store_mocked_message(message, folder_id: channel.options['inbound']['options']['folder_id'] || 'inbox')
+          Setting.set('postmaster_max_size', 0.00001)
+        end
+
+        context 'with email reply' do
+          it 'creates email reply correctly' do
+            expect_any_instance_of(described_class).to receive(:process_oversized_mail)
+
+            channel.fetch
+          end
+        end
+
+        context 'without email reply' do
+          before do
+            Setting.set('postmaster_send_reject_if_mail_too_large', false)
+          end
+
+          it 'does not create email reply' do
+            expect_any_instance_of(described_class).not_to receive(:process_oversized_mail)
+
+            channel.fetch
+
+            expect(channel.reload.status_in).to eq('error')
+          end
+        end
+      end
     end
 
     context 'without valid token' do
@@ -89,6 +119,57 @@ RSpec.describe Channel::Driver::MicrosoftGraphInbound, :aggregate_failures, inte
         expect(channel.reload.status_in).to eq('error')
         expect(Ticket).not_to have_received(:new)
       end
+    end
+  end
+
+  describe '#check_configuration' do
+    let(:mail_subject) { "CI test for #{described_class}" }
+    let(:folder_name) { "rspec-#{SecureRandom.uuid}" }
+    let(:folder)      do
+      VCR.configure do |c|
+        c.filter_sensitive_data('<FOLDER_NAME>') { folder_name }
+      end
+
+      client.create_message_folder(folder_name)
+    end
+    let(:options) { channel.options.dig('inbound', 'options').merge(folder_id: folder['id']) }
+
+    let(:message) do
+      {
+        subject:      mail_subject,
+        body:         { content: 'Test email' },
+        from:         {
+          emailAddress: { address: 'from@example.com' }
+        },
+        toRecipients: [
+          {
+            emailAddress: { address: 'test@example.com' }
+          }
+        ],
+      }
+    end
+
+    it 'returns zero with no messages in a folder' do
+      response = described_class.new.check_configuration(options)
+
+      expect(response).to include(
+        result:           'ok',
+        content_messages: 0,
+      )
+    end
+
+    it 'returns count of all messages in a folder' do
+      client.store_mocked_message(message, folder_id: folder['id'])
+
+      msg = client.store_mocked_message(message, folder_id: folder['id'])
+      client.mark_message_as_read(msg['id'])
+
+      response = described_class.new.check_configuration(options)
+
+      expect(response).to include(
+        result:           'ok',
+        content_messages: 2,
+      )
     end
   end
 end

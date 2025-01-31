@@ -133,6 +133,10 @@
   - Author: Microsoft
   - URL: https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks
 
+- `assets/openid-connect.svg`
+  - Author: OpenID
+  - URL: https://openid.net
+
 - `assets/saml.svg`
 
   - Author: OASIS

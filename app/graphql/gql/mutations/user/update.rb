@@ -10,7 +10,7 @@ module Gql::Mutations
     field :user, Gql::Types::UserType, description: 'The created user.'
 
     def authorized?(current_user:, input:)
-      Pundit.authorize(context.current_user, current_user, :update?)
+      pundit_authorized?(current_user, :update?)
     end
 
     def resolve(current_user:, input:)

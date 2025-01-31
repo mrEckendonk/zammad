@@ -14,7 +14,7 @@ module Gql::Mutations
     end
 
     def authorized?(online_notification:)
-      Pundit.authorize(context.current_user, online_notification, :destroy?)
+      pundit_authorized?(online_notification, :destroy?)
     end
   end
 end
